@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>NCEMS Intubation Guide v2.3</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Intubation">
+<style>
+  :root {
+    --g-deep: #1C3A1C;
+    --g-mid: #2E6B2E;
+    --g-accent: #3A8A3A;
+    --g-pale: #EBF5EB;
+    --warn: #B87E0A;
+    --bad: #C13E3E;
+    --bad-deep: #8B1C1C;
+    --bad-light: #FDEAEA;
+    --peds-deep: #1C3A55;
+    --peds-mid: #2E5B85;
+    --peds-pale: #E8F0F8;
+    --white: #FFFFFF;
+    --text: #1A1A1A;
+    --text-muted: #555;
+    --border: #C5DFC5;
+    --surface: #F5FAF5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: var(--g-deep); color: var(--text); min-height: 100vh; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+
+  /* SPLASH */
+  #splash { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 20px 40px; background: linear-gradient(175deg, #0e1e0e 0%, #1C3A1C 40%, #2E6B2E 100%); position: relative; overflow: hidden; }
+  #splash::before { content: ''; position: absolute; inset: 0; background-image: url('NCEMS_logo_transparent.png'); background-repeat: no-repeat; background-position: center 55%; background-size: 340px 340px; opacity: 0.12; pointer-events: none; z-index: 0; }
+  .splash-logo, .splash-title, .splash-cards, .splash-version { position: relative; z-index: 1; }
+  .splash-logo { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 4px; color: var(--g-accent); text-transform: uppercase; margin-bottom: 12px; opacity: 0.85; }
+  .splash-title { font-size: clamp(30px, 7vw, 46px); font-weight: 700; color: var(--white); text-align: center; letter-spacing: 1px; line-height: 1.15; margin-bottom: 36px; }
+  .splash-cards { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 460px; }
+  .splash-btn { display: flex; align-items: center; justify-content: center; padding: 30px 20px; border-radius: 12px; border: none; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; position: relative; overflow: hidden; min-height: 92px; }
+  .splash-btn:active { transform: scale(0.97); }
+  .splash-btn.dsi { background: linear-gradient(135deg, #2E6B2E 0%, #3A8A3A 100%); box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); }
+  .splash-btn.crash { background: linear-gradient(135deg, #8B1C1C 0%, #C13E3E 100%); box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); }
+  .splash-btn.post { background: linear-gradient(135deg, #1C3A1C 0%, #2E6B2E 100%); box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); }
+  .splash-btn.peds { background: linear-gradient(135deg, #1C3A55 0%, #4A7CB0 100%); box-shadow: 0 6px 24px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); }
+  .splash-btn-title { position: relative; z-index: 1; font-size: clamp(28px, 7vw, 36px); font-weight: 800; color: #fff; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.1; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  .splash-version { margin-top: 28px; font-size: 12px; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; letter-spacing: 1px; cursor: pointer; padding: 10px 18px; -webkit-tap-highlight-color: transparent; }
+  .splash-version:active { background: rgba(255,255,255,0.18); }
+
+  /* VIEW + HEADER + MEDS LOG BUTTON */
+  .view { display: none; min-height: 100vh; flex-direction: column; }
+  .view.active { display: flex; }
+  .view-header { background: var(--g-deep); color: white; padding: 12px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 42px; height: 42px; border-radius: 8px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+  .back-btn:active { background: rgba(255,255,255,0.2); }
+  .view-header-text { flex: 1; min-width: 0; }
+  .view-header-title { font-size: 20px; font-weight: 800; color: white; line-height: 1.1; letter-spacing: 1px; text-transform: uppercase; }
+  .view-header.crash-header { background: var(--bad-deep); }
+  .view-header.post-header { background: var(--g-deep); }
+  .view-header.peds-header { background: var(--peds-deep); }
+  .meds-log-btn { flex-shrink: 0; background: var(--bad); border: 2px solid #fff; color: white; height: 42px; padding: 0 10px 0 8px; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 5px; -webkit-tap-highlight-color: transparent; letter-spacing: 1px; }
+  .meds-log-btn:active { transform: scale(0.95); }
+  .meds-icon { font-size: 18px; }
+  .meds-count { background: white; color: var(--bad); padding: 2px 8px; border-radius: 11px; font-size: 13px; font-weight: 800; min-width: 22px; text-align: center; line-height: 1.1; }
+  .view-body { flex: 1; background: var(--surface); padding: 0 0 40px 0; overflow-y: auto; }
+  .view-body.peds-body { background: #f4f8fc; }
+
+  /* WEIGHT INPUT */
+  .weight-section { margin: 16px 16px 0; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .weight-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; text-align: center; font-weight: 700; }
+  .weight-toggle-row { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 12px; }
+  .weight-unit-btn { flex: 1; padding: 11px; border: none; background: #f5f5f5; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+  .weight-unit-btn.active { background: var(--g-deep); color: white; }
+  .weight-input-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .weight-input { flex: 0 0 130px; width: 130px; padding: 12px; font-size: 30px; font-weight: 700; border: 2px solid var(--border); border-radius: 8px; text-align: center; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; color: var(--g-deep); outline: none; -webkit-appearance: none; appearance: none; }
+  .weight-input::-webkit-outer-spin-button, .weight-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .weight-input:focus { border-color: var(--g-accent); }
+  .weight-unit-display { font-size: 17px; font-weight: 700; color: var(--text-muted); font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; min-width: 28px; }
+  .weight-enter-btn { flex: 0 0 auto; padding: 14px 20px; background: var(--g-accent); color: white; border: none; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; font-weight: 800; letter-spacing: 2px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+  .weight-enter-btn:active { background: var(--g-mid); }
+  .weight-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
+  .preset-btn { padding: 11px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--g-pale); font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; color: var(--g-deep); text-align: center; -webkit-tap-highlight-color: transparent; transition: all 0.1s; }
+  .preset-btn:active, .preset-btn.selected { background: var(--g-deep); color: white; border-color: var(--g-deep); }
+
+  /* TARGET VITAL SIGNS - HIGH CONTRAST BUTTONS */
+  .vs-banner { margin: 16px 16px 0; background: linear-gradient(135deg, #1C3A1C 0%, #2E6B2E 100%); border-radius: 12px; padding: 14px; }
+  .vs-banner.peds-vs { background: linear-gradient(135deg, #1C3A55 0%, #2E5B85 100%); }
+  .vs-banner-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; letter-spacing: 3px; color: white; text-transform: uppercase; text-align: center; margin-bottom: 4px; font-weight: 800; }
+  .vs-banner-sub { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 10px; color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 12px; letter-spacing: 1.5px; }
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vs-cell { background: #4A9E4A; border: 2px solid #7CC97C; border-radius: 10px; padding: 14px 8px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all 0.15s; position: relative; }
+  .peds-vs .vs-cell { background: #3A75B0; border-color: #6FA0D0; }
+  .vs-cell:active { transform: scale(0.97); }
+  .vs-cell.met { background: #1a7a1a; border-color: #fff; }
+  .peds-vs .vs-cell.met { background: #14304e; border-color: #fff; }
+  .vs-cell.met::after { content: '✓'; position: absolute; top: 4px; right: 8px; color: #fff; font-weight: 800; font-size: 20px; }
+  .vs-value { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 20px; font-weight: 800; color: #fff; line-height: 1.1; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .vs-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.95); margin-top: 5px; font-weight: 600; }
+
+  /* TIMER */
+  .timer-inline { margin: 8px 16px 0; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+  .timer-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; }
+  .timer-display { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 58px; font-weight: 700; color: var(--g-deep); letter-spacing: 2px; line-height: 1; transition: color 0.3s; }
+  .timer-display.running { color: var(--g-accent); }
+  .timer-display.goals-met { color: #1a7a1a; }
+  .timer-btn-row { display: flex; gap: 8px; margin-top: 12px; justify-content: center; }
+  .timer-btn { padding: 13px 28px; border-radius: 8px; border: none; font-size: 15px; font-weight: 800; cursor: pointer; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; letter-spacing: 2px; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
+  .timer-btn:active { opacity: 0.8; }
+  .timer-btn.start { background: var(--g-accent); color: white; }
+  .timer-btn.reset { background: #eee; color: var(--text); }
+  .timer-status { margin-top: 8px; font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; min-height: 18px; color: transparent; transition: color 0.3s; }
+  .timer-status.show-go { color: #1a7a1a; }
+  .timer-status.show-wait { color: var(--warn); }
+
+  /* BIG CARDS */
+  .big-dose-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px; }
+  .big-dose-col { display: flex; flex-direction: column; gap: 8px; border-radius: 12px; padding: 8px; }
+  .preferred-col { border: 3px solid var(--bad); background: rgba(193, 62, 62, 0.04); }
+  .alt-col { border: 1px solid transparent; }
+  .pref-col-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; font-weight: 800; letter-spacing: 2.5px; color: var(--bad); text-align: center; text-transform: uppercase; padding: 2px 0 4px; }
+  .alt-col-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); text-align: center; text-transform: uppercase; padding: 2px 0 4px; }
+  .big-card { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; position: relative; }
+  .big-card:active { transform: scale(0.97); }
+  .big-card.given { background: #e8f5e8; border: 2px solid var(--g-accent); box-shadow: 0 0 0 1px var(--g-accent); }
+  .big-card-head { background: var(--g-deep); color: white; padding: 8px 6px; text-align: center; }
+  .big-card-head.dsi-induction { background: var(--g-deep); }
+  .big-card-head.dsi-paralytic { background: var(--g-mid); }
+  .big-card-head.crash-induction { background: var(--bad-deep); }
+  .big-card-head.crash-paralytic { background: #5a1a1a; }
+  .big-card-head.peds-induction { background: var(--peds-deep); }
+  .big-card-head.peds-paralytic { background: #14304e; }
+  .big-card-name { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.1; width: 100%; }
+  .big-card-class { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 9px; letter-spacing: 1.5px; color: rgba(255,255,255,0.75); text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+  .big-card-body { padding: 16px 6px 12px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .big-ml-row { display: flex; align-items: baseline; justify-content: center; gap: 4px; line-height: 1; }
+  .big-ml { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: clamp(44px, 13vw, 58px); font-weight: 700; line-height: 0.95; letter-spacing: -2px; color: var(--g-mid); }
+  .big-ml.dsi-color { color: var(--g-mid); }
+  .big-ml.crash-color { color: var(--bad); }
+  .big-ml.peds-color { color: var(--peds-mid); }
+  .big-ml-inline-unit { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: clamp(16px, 4.5vw, 20px); color: var(--text-muted); font-weight: 700; letter-spacing: 1px; }
+  .big-mg { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 16px; font-weight: 800; color: var(--text); margin-top: 6px; letter-spacing: 0.5px; }
+  .big-max-tag { display: inline-block; background: var(--warn); color: white; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 9px; font-weight: 800; letter-spacing: 1px; padding: 2px 6px; border-radius: 3px; margin-top: 4px; }
+  .given-stamp { margin-top: 8px; background: var(--g-accent); color: white; padding: 5px 10px; border-radius: 6px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; align-self: center; line-height: 1.2; }
+  .big-card-foot { padding: 7px 6px; background: #fafafa; border-top: 1px solid #eee; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; color: var(--text); text-align: center; letter-spacing: 0.3px; font-weight: 700; }
+  .big-card.given .big-card-foot { background: #d4ecd4; }
+  .single-big-card { margin: 0 16px; background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+  .single-big-card:active { transform: scale(0.98); }
+  .single-big-card.given { background: #e8f5e8; border: 2px solid var(--g-accent); }
+  .single-big-card .big-card-body { flex-direction: row; justify-content: center; align-items: baseline; gap: 14px; padding: 16px 10px; flex-wrap: wrap; }
+  .single-big-card .big-ml { font-size: 54px; }
+  .single-big-card .big-mg { margin-top: 0; font-size: 17px; }
+  .single-big-card .given-stamp { margin-top: 0; }
+  .no-weight-msg { margin: 16px 16px 0; text-align: center; padding: 32px 20px; color: var(--text-muted); font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; letter-spacing: 1px; background: white; border: 2px dashed var(--border); border-radius: 10px; }
+
+  /* ACCORDION */
+  .accordion { margin: 12px 16px 0; background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .acc-header { padding: 16px; background: var(--g-deep); color: white; display: flex; align-items: center; justify-content: space-between; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+  .acc-header:active { background: #0e1e0e; }
+  .acc-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+  .acc-icon-emoji { font-size: 18px; }
+  .acc-chevron { font-size: 22px; color: rgba(255,255,255,0.6); transition: transform 0.2s; }
+  .accordion.open .acc-chevron { transform: rotate(180deg); }
+  .acc-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+  .accordion.open .acc-content { max-height: 5000px; transition: max-height 0.5s ease-in; }
+  .acc-inner { padding: 4px 0 0; }
+  .accordion.warn-acc .acc-header { background: var(--warn); }
+  .accordion.warn-acc .acc-header:active { background: #946408; }
+  .accordion.mid-acc .acc-header { background: var(--g-mid); }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-bottom: 1px solid #f0f5f0; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:active { background: var(--g-pale); }
+  .check-item.checked { background: #f0faf0; }
+  .check-box { width: 28px; height: 28px; border: 2px solid var(--border); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; background: white; }
+  .check-item.checked .check-box { background: var(--g-accent); border-color: var(--g-accent); }
+  .check-box::after { content: ''; display: none; width: 7px; height: 12px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+  .check-item.checked .check-box::after { display: block; }
+  .check-text { flex: 1; font-size: 16px; line-height: 1.4; color: var(--text); padding-top: 2px; }
+  .check-text strong { color: var(--g-deep); }
+
+  /* LEMON / MALLAMPATI */
+  .lemon-table { width: 100%; border-collapse: collapse; }
+  .lemon-row { display: grid; grid-template-columns: 56px 1fr; border-bottom: 1px solid #f0f0f0; }
+  .lemon-row:last-of-type { border-bottom: none; }
+  .lemon-letter { background: var(--bad-deep); color: white; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .lemon-row:nth-child(2) .lemon-letter { background: #a82626; }
+  .lemon-row:nth-child(3) .lemon-letter { background: var(--bad); }
+  .lemon-row:nth-child(4) .lemon-letter { background: #d04848; }
+  .lemon-row:nth-child(5) .lemon-letter { background: #e15555; }
+  .lemon-body { padding: 12px 14px; }
+  .lemon-word { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--bad-deep); margin-bottom: 4px; }
+  .lemon-detail { font-size: 15px; line-height: 1.4; color: var(--text); }
+  .lemon-detail ul { list-style: none; padding-left: 0; margin-top: 4px; }
+  .lemon-detail li { padding: 2px 0 2px 14px; position: relative; font-size: 14px; }
+  .lemon-detail li::before { content: '•'; position: absolute; left: 0; color: var(--bad); }
+  .mallampati { padding: 14px; background: #f9f9f9; border-top: 1px solid #eee; }
+  .mallampati-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; text-align: center; font-weight: 700; }
+  .mallampati-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .mp-class { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px 4px 6px; text-align: center; }
+  .mp-class svg { display: block; width: 100%; height: auto; max-width: 80px; margin: 0 auto 6px; }
+  .mp-num { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; font-weight: 800; color: var(--bad-deep); margin-bottom: 4px; }
+  .mp-desc { font-size: 10px; color: var(--text-muted); line-height: 1.2; }
+  .e-rule-svg { margin: 12px auto 0; padding: 12px; background: white; border-radius: 8px; border: 1px solid #eee; max-width: 100%; }
+  .e-rule-svg svg { display: block; max-width: 280px; width: 100%; height: auto; margin: 0 auto; }
+
+  /* CONSIDERATIONS */
+  .consid-block { padding: 12px 14px; }
+  .consid-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--g-deep); margin-bottom: 6px; font-weight: 800; }
+  .consid-title.alt-title { color: var(--warn); margin-top: 12px; }
+  .consid-list { list-style: none; }
+  .consid-list li { padding: 4px 0 4px 14px; font-size: 15px; line-height: 1.4; position: relative; }
+  .consid-list li::before { content: '▸'; position: absolute; left: 0; color: var(--g-accent); font-size: 12px; top: 6px; }
+  .consid-title.alt-title + .consid-list li::before { color: var(--warn); }
+  .consid-list li strong { color: var(--g-deep); }
+
+  /* NAV BUTTON */
+  .nav-btn { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 32px); margin: 16px 16px 0; padding: 20px 22px; background: linear-gradient(135deg, var(--g-deep) 0%, var(--g-mid) 100%); color: white; border: none; border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.1s; }
+  .nav-btn.peds-nav { background: linear-gradient(135deg, var(--peds-deep) 0%, var(--peds-mid) 100%); }
+  .nav-btn:active { transform: scale(0.98); }
+  .nav-btn-title { font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .nav-btn-arrow { font-size: 30px; color: rgba(255,255,255,0.6); }
+
+  /* WARN + CRIC */
+  .warn-box { margin: 12px 16px 0; background: #fff8e8; border: 1px solid #f0c060; border-radius: 8px; padding: 11px 13px; font-size: 13px; color: #7a5000; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; line-height: 1.5; }
+  .warn-box strong { color: var(--warn); }
+  .cric-banner { margin: 16px 16px 0; background: var(--bad-light); border: 2px solid var(--bad); border-radius: 10px; padding: 13px; text-align: center; }
+  .cric-banner-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--bad); font-weight: 800; margin-bottom: 6px; }
+  .cric-banner-text { font-size: 14px; color: #7a0000; line-height: 1.5; }
+
+  /* POST-INT CARDS */
+  .post-drug-card { margin: 16px 16px 0; background: white; border: 2px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+  .post-drug-card:active { transform: scale(0.98); }
+  .post-drug-card.given { background: #e8f5e8; border: 3px solid var(--g-accent); }
+  .post-drug-card.preferred { border: 3px solid var(--bad); box-shadow: 0 2px 12px rgba(193, 62, 62, 0.18); }
+  .post-drug-card.preferred.given { border-color: var(--g-accent); background: #e8f5e8; }
+  .post-drug-head { background: var(--g-mid); color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .post-drug-head.ket-head { background: var(--g-deep); }
+  .post-drug-head.midaz-head { background: var(--warn); }
+  .post-drug-name { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 17px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; }
+  .post-drug-role { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.85); font-weight: 700; }
+  .post-drug-body { padding: 24px 16px; text-align: center; }
+  .post-ml-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; line-height: 1; }
+  .post-ml-huge { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 88px; font-weight: 700; color: var(--g-mid); line-height: 0.95; letter-spacing: -3px; }
+  .post-ml-huge.ket-color { color: var(--g-deep); }
+  .post-ml-huge.midaz-color { color: var(--warn); }
+  .post-ml-unit-inline { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 26px; font-weight: 700; color: var(--text-muted); letter-spacing: 3px; }
+  .post-mg-line { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 19px; font-weight: 800; color: var(--text); margin-top: 14px; letter-spacing: 1px; }
+  .post-mg-line .post-max-tag { display: inline-block; background: var(--warn); color: white; font-size: 12px; font-weight: 800; letter-spacing: 1px; padding: 2px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .post-given-stamp { margin-top: 14px; background: var(--g-accent); color: white; padding: 7px 14px; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; font-weight: 800; letter-spacing: 2px; display: inline-block; }
+  .post-drug-foot { padding: 11px 14px; background: #fafafa; border-top: 1px solid #eee; font-size: 13px; color: var(--text); line-height: 1.5; text-align: center; font-weight: 700; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; }
+  .post-drug-foot strong { color: var(--g-deep); }
+  .post-drug-card.given .post-drug-foot { background: #d4ecd4; }
+  .midaz-conc-note { background: #fef6e4; border: 1px solid #f0c060; color: #7a5000; padding: 9px 12px; margin: 8px 12px 0; border-radius: 6px; font-size: 12px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; line-height: 1.5; }
+  .midaz-conc-note strong { color: var(--warn); }
+
+  /* RASS */
+  .rass-wrap { padding: 12px 14px; }
+  .rass-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .rass-table th { background: var(--g-deep); color: white; padding: 8px; text-align: left; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .rass-table td { padding: 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .rass-table tr:last-child td { border-bottom: none; }
+  .rass-score { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-weight: 800; font-size: 16px; width: 32px; }
+  .rass-pos { color: var(--bad); }
+  .rass-zero { color: var(--g-mid); }
+  .rass-neg { color: var(--g-accent); }
+  .rass-target { background: #e8f5e8 !important; }
+  .rass-target td:first-child::after { content: ' ★'; font-size: 10px; color: var(--g-accent); }
+
+  /* PEDS BROSELOW */
+  .peds-intro { margin: 16px 16px 0; background: white; border: 1px solid #c5d9eb; border-radius: 10px; padding: 14px; }
+  .peds-intro-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; text-align: center; font-weight: 700; }
+  .peds-age-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .peds-age-btn { padding: 14px 4px; border: 2px solid transparent; border-radius: 6px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 12px; font-weight: 800; cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; transition: all 0.1s; letter-spacing: 0.5px; line-height: 1.2; }
+  .peds-age-btn.bro-grey   { background: #607D8B; color: white; }
+  .peds-age-btn.bro-pink   { background: #EC407A; color: white; }
+  .peds-age-btn.bro-red    { background: #D32F2F; color: white; }
+  .peds-age-btn.bro-purple { background: #7B1FA2; color: white; }
+  .peds-age-btn.bro-yellow { background: #FBC02D; color: #1A1A1A; }
+  .peds-age-btn.bro-white  { background: #ECEFF1; color: #1A1A1A; border-color: #B0BEC5; }
+  .peds-age-btn.bro-blue   { background: #1E88E5; color: white; }
+  .peds-age-btn.bro-orange { background: #FB8C00; color: white; }
+  .peds-age-btn.bro-green  { background: #43A047; color: white; }
+  .peds-age-btn:active { transform: scale(0.95); opacity: 0.85; }
+  .peds-age-btn.selected { border-color: #000; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000; transform: scale(1.05); }
+  .peds-length-divider { margin: 14px 0 10px; text-align: center; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; letter-spacing: 3px; color: var(--text-muted); position: relative; font-weight: 700; }
+  .peds-length-divider::before, .peds-length-divider::after { content: ''; position: absolute; top: 50%; width: 25%; height: 1px; background: #ddd; }
+  .peds-length-divider::before { left: 8%; }
+  .peds-length-divider::after { right: 8%; }
+  .peds-length-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .peds-length-input { flex: 0 0 110px; width: 110px; padding: 11px; font-size: 24px; font-weight: 700; border: 2px solid #c5d9eb; border-radius: 8px; text-align: center; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; color: var(--peds-deep); outline: none; appearance: none; -webkit-appearance: none; }
+  .peds-length-input:focus { border-color: var(--peds-mid); }
+  .peds-length-input::-webkit-outer-spin-button, .peds-length-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .peds-length-unit { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 15px; color: var(--text-muted); font-weight: 700; }
+  .peds-length-btn { padding: 12px 18px; background: var(--peds-mid); color: white; border: none; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; font-weight: 800; letter-spacing: 2px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .peds-length-btn:active { background: var(--peds-deep); }
+  .peds-summary { margin: 16px 16px 0; background: linear-gradient(135deg, var(--peds-deep) 0%, var(--peds-mid) 100%); border-radius: 12px; padding: 0 0 16px; color: white; overflow: hidden; }
+  .peds-broselow-stripe { height: 10px; width: 100%; }
+  .peds-broselow-stripe.bro-grey   { background: #607D8B; }
+  .peds-broselow-stripe.bro-pink   { background: #EC407A; }
+  .peds-broselow-stripe.bro-red    { background: #D32F2F; }
+  .peds-broselow-stripe.bro-purple { background: #7B1FA2; }
+  .peds-broselow-stripe.bro-yellow { background: #FBC02D; }
+  .peds-broselow-stripe.bro-white  { background: #ECEFF1; }
+  .peds-broselow-stripe.bro-blue   { background: #1E88E5; }
+  .peds-broselow-stripe.bro-orange { background: #FB8C00; }
+  .peds-broselow-stripe.bro-green  { background: #43A047; }
+  .peds-summary-age { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 24px; font-weight: 800; text-align: center; letter-spacing: 2px; margin: 14px 0 12px; }
+  .peds-summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0 16px; }
+  .peds-stat { background: rgba(255,255,255,0.1); border-radius: 6px; padding: 11px 6px; text-align: center; }
+  .peds-stat-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); font-weight: 700; }
+  .peds-stat-value { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 19px; font-weight: 800; color: #9bc2e8; margin-top: 3px; line-height: 1.1; }
+  .peds-stat-sub { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+  .section-label { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin: 16px 16px 0; text-align: left; font-weight: 800; }
+
+  /* MEDS LOG MODAL */
+  .meds-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.15s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .meds-modal-content { background: white; border-radius: 14px; width: 100%; max-width: 460px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+  .meds-modal-header { background: var(--bad); color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .meds-modal-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .meds-modal-close { background: rgba(255,255,255,0.2); border: none; color: white; font-size: 26px; cursor: pointer; width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
+  .meds-modal-close:active { background: rgba(255,255,255,0.35); }
+  #meds-list-body { padding: 8px; overflow-y: auto; flex: 1; }
+  .med-log-item { display: grid; grid-template-columns: 1fr auto; padding: 13px 12px; border-bottom: 1px solid #eee; align-items: center; gap: 12px; }
+  .med-log-item:last-child { border-bottom: none; }
+  .med-log-drug { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 15px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--g-deep); }
+  .med-log-dose { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; color: var(--text); margin-top: 3px; font-weight: 700; }
+  .med-log-time { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 16px; font-weight: 800; color: var(--bad); text-align: right; }
+  .meds-modal-actions { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; }
+  .clear-meds-btn { flex: 1; padding: 13px; background: var(--bad); color: white; border: none; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; font-weight: 800; letter-spacing: 2px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .clear-meds-btn:active { opacity: 0.85; }
+  .close-meds-btn { flex: 1; padding: 13px; background: #eee; color: var(--text); border: none; border-radius: 8px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 14px; font-weight: 800; letter-spacing: 2px; cursor: pointer; }
+  .empty-meds { text-align: center; padding: 40px 20px; color: var(--text-muted); font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; letter-spacing: 1px; }
+  .spacer-lg { height: 28px; }
+
+  /* ADMIN / CONCENTRATIONS */
+  .admin-note { margin: 16px 16px 0; background: #fff8e8; border: 1px solid #f0c060; color: #7a5000; border-radius: 8px; padding: 12px 14px; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 13px; line-height: 1.5; }
+  .conc-table { margin: 14px 16px 0; background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .conc-row { display: grid; grid-template-columns: 1.4fr 1fr 1.2fr 0.9fr; gap: 6px; padding: 12px 12px; border-bottom: 1px solid #f0f0f0; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 13px; align-items: center; }
+  .conc-row:last-child { border-bottom: none; }
+  .conc-head { background: var(--g-deep); color: white; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
+  .conc-drug { font-weight: 800; color: var(--g-deep); }
+  .conc-sub { color: var(--text-muted); font-size: 11px; }
+  .admin-foot { margin: 14px 16px 0; background: #fdeaea; border: 1px solid var(--bad); color: #7a0000; border-radius: 8px; padding: 12px 14px; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 13px; line-height: 1.5; }
+  .admin-contact { margin: 14px 16px 0; text-align: center; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+  .admin-contact a { color: var(--g-mid); font-weight: 800; text-decoration: none; }
+  .admin-contact a:active { opacity: 0.7; }
+
+  /* RED POPUP (Midazolam ? warning) */
+  .red-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 4000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+  }
+  .red-popup-overlay.show { display: flex; }
+  .red-popup-box {
+    background: var(--bad);
+    color: white;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    padding: 24px 22px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    font-family: 'SF Mono', ui-monospace, 'Menlo', monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  .red-popup-box strong { display: block; font-size: 18px; letter-spacing: 1px; margin-bottom: 10px; }
+  .red-popup-tap { margin-top: 14px; font-size: 12px; opacity: 0.8; letter-spacing: 1px; }
+  .maxdose-btn { border: none; border-radius: 10px; padding: 15px; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 15px; font-weight: 800; letter-spacing: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .maxdose-btn.give { background: #fff; color: var(--bad-deep); }
+  .maxdose-btn.back { background: rgba(0,0,0,0.25); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+  .maxdose-btn:active { opacity: 0.8; }
+
+  /* TIMER MET NOTICE (blink, like redose) */
+  .timer-inline.timer-met { animation: timerMetBlink 1s ease-in-out infinite; }
+  @keyframes timerMetBlink {
+    0%, 100% { background: #fff; border-color: var(--border); }
+    50%      { background: #d4f5d4; border-color: var(--g-accent); }
+  }
+  .timer-met-banner {
+    margin-top: 10px;
+    background: var(--g-accent);
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: 'SF Mono', ui-monospace, 'Menlo', monospace;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    display: none;
+    animation: timerBannerPulse 1s ease-in-out infinite;
+  }
+  .timer-inline.timer-met .timer-met-banner { display: block; }
+  @keyframes timerBannerPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+  /* MEDS LOG DELETE X */
+  .med-log-del {
+    background: var(--bad);
+    color: white;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .med-log-del:active { opacity: 0.8; }
+  .med-log-item { grid-template-columns: 1fr auto auto !important; }
+
+  /* MIDAZ ? BUTTON */
+  .midaz-q-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px 0; font-family: 'SF Mono', ui-monospace, 'Menlo', monospace; font-size: 14px; font-weight: 800; color: var(--text); }
+  .midaz-q-btn { background: var(--warn); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 17px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; line-height: 1; }
+  .midaz-q-btn:active { opacity: 0.8; }
+
+  /* WEIGHT - bold + big */
+  .weight-input { font-weight: 900 !important; }
+
+  /* DISCLAIMER MODAL */
+  .disclaimer-overlay { position: fixed; inset: 0; background: rgba(14, 30, 14, 0.97); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .disclaimer-content { background: white; border-radius: 14px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; border: 3px solid var(--bad); }
+  .disclaimer-header { background: var(--bad-deep); color: white; padding: 16px 20px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+  .disclaimer-body { padding: 22px 24px; font-size: 16px; line-height: 1.55; color: var(--text); }
+  .disclaimer-body p { margin-bottom: 12px; }
+  .disclaimer-body strong { color: var(--bad-deep); }
+  .disclaimer-body ul { list-style: none; padding: 0; margin: 14px 0; }
+  .disclaimer-body li { padding: 8px 0 8px 28px; position: relative; border-bottom: 1px solid #f0f0f0; font-size: 15px; line-height: 1.4; }
+  .disclaimer-body li:last-child { border-bottom: none; }
+  .disclaimer-body li::before { content: '⚠'; position: absolute; left: 4px; top: 8px; color: var(--bad); font-size: 16px; font-weight: 800; }
+  .disclaimer-tagline { font-style: italic; color: var(--text-muted); font-size: 14px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #eee; }
+  .disclaimer-btn { display: block; width: calc(100% - 40px); margin: 0 20px 20px; padding: 18px; background: var(--g-accent); color: white; border: none; border-radius: 10px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 17px; font-weight: 800; letter-spacing: 2px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .disclaimer-btn:active { background: var(--g-mid); }
+  .disclaimer-date { text-align: center; padding: 0 20px 14px; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; }
+
+  /* DOPE BOX */
+  .dope-box { margin: 12px 16px 0; background: #fff5f5; border: 2px solid var(--bad); border-radius: 10px; padding: 14px; }
+  .dope-title { font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 13px; font-weight: 800; letter-spacing: 2.5px; color: var(--bad-deep); text-transform: uppercase; text-align: center; margin-bottom: 10px; }
+  .dope-grid { display: grid; grid-template-columns: 48px 1fr; gap: 6px 10px; align-items: center; }
+  .dope-letter { background: var(--bad-deep); color: white; font-family: 'SF Mono', ui-monospace, 'Cascadia Code', 'Menlo', monospace; font-size: 26px; font-weight: 800; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .dope-text { font-size: 13px; line-height: 1.4; color: var(--text); }
+  .dope-text strong { color: var(--bad-deep); }
+
+  /* ===== iPad / TABLET SIZING ===== */
+  @media (min-width: 720px) {
+    .view-header-title { font-size: 28px; }
+    .meds-log-btn { height: 50px; font-size: 15px; padding: 0 14px 0 12px; }
+    .meds-count { font-size: 16px; padding: 3px 11px; }
+    .meds-icon { font-size: 22px; }
+    .weight-label { font-size: 16px; letter-spacing: 4px; }
+    .weight-unit-btn { padding: 14px; font-size: 18px; }
+    .weight-input { font-size: 56px !important; flex: 0 0 220px; width: 220px; padding: 16px; }
+    .weight-unit-display { font-size: 24px; }
+    .weight-enter-btn { padding: 18px 28px; font-size: 18px; }
+    .preset-btn { padding: 16px 6px; font-size: 18px; }
+    .vs-banner { padding: 20px; }
+    .vs-banner-title { font-size: 24px; letter-spacing: 4px; }
+    .vs-banner-sub { font-size: 14px; }
+    .vs-cell { padding: 24px 14px; }
+    .vs-value { font-size: 32px; }
+    .vs-label { font-size: 13px; letter-spacing: 2px; }
+    .vs-cell.met::after { font-size: 28px; }
+    .timer-inline { padding: 22px; }
+    .timer-label { font-size: 16px; letter-spacing: 4px; }
+    .timer-display { font-size: 110px; }
+    .timer-btn { padding: 18px 38px; font-size: 18px; }
+    .timer-status { font-size: 18px; }
+    .big-card-name { font-size: 22px; letter-spacing: 2px; }
+    .big-card-class { font-size: 12px; }
+    .big-ml { font-size: 96px !important; letter-spacing: -4px; }
+    .big-ml-inline-unit { font-size: 30px !important; }
+    .big-mg { font-size: 22px; margin-top: 10px; }
+    .given-stamp { font-size: 14px; padding: 8px 14px; margin-top: 12px; }
+    .big-card-body { padding: 26px 10px 18px; }
+    .big-card-head { padding: 12px 8px; }
+    .big-card-foot { font-size: 13px; padding: 10px 8px; }
+    .single-big-card .big-ml { font-size: 80px !important; }
+    .single-big-card .big-mg { font-size: 22px; }
+    .post-drug-name { font-size: 22px; }
+    .post-drug-role { font-size: 13px; }
+    .post-ml-huge { font-size: 130px; }
+    .post-ml-unit-inline { font-size: 36px; }
+    .post-mg-line { font-size: 24px; }
+    .post-given-stamp { font-size: 16px; padding: 9px 18px; }
+    .acc-title { font-size: 17px; }
+    .check-text { font-size: 18px; }
+    .lemon-letter { font-size: 42px; }
+    .lemon-word { font-size: 15px; }
+    .lemon-detail, .lemon-detail li { font-size: 16px; }
+    .nav-btn { padding: 24px 28px; }
+    .nav-btn-title { font-size: 24px; }
+    .nav-btn-arrow { font-size: 36px; }
+    .cric-banner-text { font-size: 16px; }
+    .cric-banner-title { font-size: 14px; }
+    .warn-box { font-size: 15px; padding: 14px 16px; }
+    .peds-age-btn { padding: 18px 6px; font-size: 15px; }
+    .peds-summary-age { font-size: 32px; }
+    .peds-stat-value { font-size: 24px; }
+    .peds-stat-label { font-size: 12px; }
+    .peds-stat-sub { font-size: 13px; }
+    .splash-title { font-size: 56px; }
+    .splash-btn { min-height: 110px; }
+    .splash-btn-title { font-size: 40px; }
+    .dope-letter { font-size: 32px; width: 60px; height: 60px; }
+    .dope-text { font-size: 16px; }
+    .dope-title { font-size: 16px; }
+    .dope-grid { grid-template-columns: 60px 1fr; gap: 10px 14px; }
+  }
+  /* POST-INT RE-DOSE TIMER */
+  .redose-badge {
+    margin-top: 12px;
+    display: inline-block;
+    background: var(--g-deep);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'SF Mono', ui-monospace, 'Menlo', monospace;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .redose-badge .redose-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .post-drug-card.redose-due {
+    animation: redoseBlink 1s ease-in-out infinite;
+  }
+  @keyframes redoseBlink {
+    0%, 100% { background: #fff; border-color: var(--bad); }
+    50%      { background: #ffe0e0; border-color: var(--bad-deep); }
+  }
+  .post-drug-card.redose-due .redose-badge {
+    background: var(--bad);
+    animation: redoseBadgePulse 1s ease-in-out infinite;
+  }
+  @keyframes redoseBadgePulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+  }
+
+  /* SASQUATCH EASTER EGG */
+  .logo-tap-zone {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -30%);
+    z-index: 2;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .squatch-container {
+    position: fixed;
+    bottom: 0;
+    left: -180px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: squatchWalk 3s linear forwards;
+  }
+  @keyframes squatchWalk {
+    0%   { left: -180px; }
+    100% { left: calc(100vw + 20px); }
+  }
+  .squatch-svg {
+    width: 150px;
+    height: 190px;
+    animation: squatchBob 0.45s ease-in-out infinite alternate;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    overflow: visible;
+  }
+  @keyframes squatchBob {
+    from { transform: translateY(0px); }
+    to   { transform: translateY(-5px); }
+  }
+  /* Walking limbs - scissor stride */
+  .sq-leg-front { transform-origin: 70px 150px; animation: legFront 0.45s ease-in-out infinite alternate; }
+  .sq-leg-back  { transform-origin: 70px 150px; animation: legBack 0.45s ease-in-out infinite alternate; }
+  .sq-arm-front { transform-origin: 95px 88px; animation: armFront 0.45s ease-in-out infinite alternate; }
+  .sq-arm-back  { transform-origin: 45px 88px; animation: armBack 0.45s ease-in-out infinite alternate; }
+  @keyframes legFront { from { transform: rotate(18deg); } to { transform: rotate(-16deg); } }
+  @keyframes legBack  { from { transform: rotate(-16deg); } to { transform: rotate(18deg); } }
+  @keyframes armFront { from { transform: rotate(-20deg); } to { transform: rotate(18deg); } }
+  @keyframes armBack  { from { transform: rotate(18deg); } to { transform: rotate(-20deg); } }
+  .squatch-tap-hint {
+    position: fixed;
+    bottom: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-family: Georgia, serif;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: hintFade 3s ease forwards;
+    z-index: 9999;
+  }
+  @keyframes hintFade {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- DISCLAIMER (shown on first load) -->
+<div id="disclaimer-modal" class="disclaimer-overlay" style="display:none;">
+  <div class="disclaimer-content">
+    <div class="disclaimer-header">⚠ Read Before Use</div>
+    <div class="disclaimer-body">
+      <p><strong>This is a reference tool only.</strong></p>
+      <p>By tapping <strong>I AGREE</strong> you acknowledge:</p>
+      <ul>
+        <li>This guide <strong>does not supersede clinical judgment</strong>.</li>
+        <li>Do <strong>not</strong> work outside your scope of practice.</li>
+        <li>Verify all doses, concentrations, and protocols against your service's current standards before administration.</li>
+        <li>You agree <strong>not to hold the author or NCEMS legally accountable</strong> for any outcomes related to use of this tool.</li>
+      </ul>
+      <p class="disclaimer-tagline">Built by NCEMS for field use. Always confirm with your medical director's protocols.</p>
+    </div>
+    <div class="disclaimer-date">Protocols current as of <strong>2026 Clark County EMS Patient Care Protocols</strong></div>
+    <button class="disclaimer-btn" onclick="acceptDisclaimer()">I AGREE — CONTINUE</button>
+  </div>
+</div>
+<!-- SPLASH -->
+<div id="splash" onclick="logoTap()">
+  <div class="splash-logo">NCEMS · Clark County</div>
+  <div class="splash-title">Intubation<br>Guide</div>
+  <div class="splash-cards">
+    <button class="splash-btn dsi" onclick="event.stopPropagation();showView('dsi')"><div class="splash-btn-title">DSI</div></button>
+    <button class="splash-btn crash" onclick="event.stopPropagation();showView('crash')"><div class="splash-btn-title">Adult Crash Airway</div></button>
+    <button class="splash-btn peds" onclick="event.stopPropagation();showView('peds')"><div class="splash-btn-title">Peds RSI</div></button>
+    <button class="splash-btn post" onclick="event.stopPropagation();showView('post')"><div class="splash-btn-title">Post-Intubation</div></button>
+  </div>
+  <div class="splash-version" onclick="event.stopPropagation();showView('admin')">v2.3 · ⓘ Verify Concentrations</div>
+</div>
+
+<!-- DSI -->
+<div id="view-dsi" class="view">
+  <div class="view-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text"><div class="view-header-title">DSI</div></div>
+    <button class="meds-log-btn" onclick="showMedsLog()"><span class="meds-icon">💊</span><span class="meds-count">0</span></button>
+  </div>
+  <div class="view-body">
+
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn" id="dsi-unit-lbs" onclick="setDsiUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn active" id="dsi-unit-kg" onclick="setDsiUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="weight-input" id="dsi-weight-input" placeholder="0" oninput="calcDsiDoses()" onkeydown="if(event.key==='Enter'){this.blur();calcDsiDoses();scrollToDsiVS();}">
+        <span class="weight-unit-display" id="dsi-unit-display">lbs</span>
+        <button class="weight-enter-btn" onclick="document.getElementById('dsi-weight-input').blur();calcDsiDoses();scrollToDsiVS();">GO</button>
+      </div>
+      <div class="weight-presets" id="dsi-preset-row">
+        <button class="preset-btn" onclick="setDsiPreset(110)">110</button>
+        <button class="preset-btn" onclick="setDsiPreset(154)">154</button>
+        <button class="preset-btn" onclick="setDsiPreset(176)">176</button>
+        <button class="preset-btn" onclick="setDsiPreset(220)">220</button>
+        <button class="preset-btn" onclick="setDsiPreset(242)">242</button>
+        <button class="preset-btn" onclick="setDsiPreset(275)">275</button>
+        <button class="preset-btn" onclick="setDsiPreset(308)">308</button>
+        <button class="preset-btn" onclick="setDsiPreset(330)">330</button>
+      </div>
+    </div>
+
+    <div class="vs-banner" id="dsi-vs-banner">
+      <div class="vs-banner-title">Target Vital Signs</div>
+      <div class="vs-banner-sub">Hit BOTH × 3 min before paralytic</div>
+      <div class="vs-grid">
+        <div class="vs-cell" id="vs-spo2" onclick="vsCellTap('spo2')">
+          <div class="vs-value">SpO₂ ≥94%</div>
+          <div class="vs-label">CPAP / BVM + PEEP</div>
+        </div>
+        <div class="vs-cell" id="vs-bp" onclick="vsCellTap('bp')">
+          <div class="vs-value">SBP &gt;90<br>MAP &gt;65</div>
+          <div class="vs-label">Fluids / Low-Dose Epi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timer-inline" id="dsi-timer-section">
+      <div class="timer-label">3-Minute Timer</div>
+      <div class="timer-display" id="dsi-timer">3:00</div>
+      <div class="timer-btn-row">
+        <button class="timer-btn start" id="dsi-start-btn" onclick="manualStartTimer()">START</button>
+        <button class="timer-btn reset" onclick="resetTimer()">RESET</button>
+      </div>
+      <div class="timer-status" id="dsi-timer-status">​</div>
+      <div class="timer-met-banner">✓ 3 MIN MET — PROCEED</div>
+    </div>
+
+    <div id="dsi-no-weight" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="dsi-doses" style="display:none;">
+      <div class="big-dose-grid">
+        <div class="big-dose-col preferred-col">
+          <div class="pref-col-label">★ PREFERRED</div>
+          <div class="big-card" id="card-dsi-ket" onclick="giveMed('dsi-ket', 'Ketamine', 'dsi-ml-ket', 'dsi-mg-ket')">
+            <div class="big-card-head dsi-induction"><div class="big-card-name">Ketamine</div><div class="big-card-class">Induction</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml dsi-color" id="dsi-ml-ket">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="dsi-mg-ket">0 mg</div>
+              <div id="dsi-max-ket" style="display:none;"><span class="big-max-tag">MAX 200</span></div>
+              <div class="given-stamp" id="given-dsi-ket" style="display:none;">✓ GIVEN <span id="given-dsi-ket-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-dsi-roc" onclick="giveMed('dsi-roc', 'Rocuronium', 'dsi-ml-roc', 'dsi-mg-roc')">
+            <div class="big-card-head dsi-paralytic"><div class="big-card-name">Rocuronium</div><div class="big-card-class">Paralytic</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml dsi-color" id="dsi-ml-roc">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="dsi-mg-roc">0 mg</div>
+              <div id="dsi-max-roc" style="display:none;"><span class="big-max-tag">MAX 300</span></div>
+              <div class="given-stamp" id="given-dsi-roc" style="display:none;">✓ GIVEN <span id="given-dsi-roc-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+        </div>
+        <div class="big-dose-col alt-col">
+          <div class="alt-col-label">Alternative</div>
+          <div class="big-card" id="card-dsi-eto" onclick="giveMed('dsi-eto', 'Etomidate', 'dsi-ml-eto', 'dsi-mg-eto')">
+            <div class="big-card-head dsi-induction"><div class="big-card-name">Etomidate</div><div class="big-card-class">If No Ket</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml dsi-color" id="dsi-ml-eto">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="dsi-mg-eto">0 mg</div>
+              <div id="dsi-max-eto" style="display:none;"><span class="big-max-tag">MAX 60</span></div>
+              <div class="given-stamp" id="given-dsi-eto" style="display:none;">✓ GIVEN <span id="given-dsi-eto-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-dsi-sux" onclick="giveMed('dsi-sux', 'Succinylcholine', 'dsi-ml-sux', 'dsi-mg-sux')">
+            <div class="big-card-head dsi-paralytic"><div class="big-card-name">Sux</div><div class="big-card-class">Neuro Exam</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml dsi-color" id="dsi-ml-sux">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="dsi-mg-sux">0 mg</div>
+              <div id="dsi-max-sux" style="display:none;"><span class="big-max-tag">MAX 300</span></div>
+              <div class="given-stamp" id="given-dsi-sux" style="display:none;">✓ GIVEN <span id="given-dsi-sux-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="nav-btn" onclick="goToPost('dsi')">
+      <div class="nav-btn-title">Post-Intubation →</div>
+      <span class="nav-btn-arrow">›</span>
+    </button>
+
+    <div class="accordion" id="acc-equip">
+      <div class="acc-header" onclick="toggleAcc('acc-equip')">
+        <div class="acc-title"><span class="acc-icon-emoji">🎒</span> Equipment</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content"><div class="acc-inner">
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Monitor:</strong> SpO2, EtCO2, EKG, BP, HR</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Suction</strong> set up + tested</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Laryngoscope</strong> - VL preferred</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>ET tubes</strong> + size smaller</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Bougie / S-Guide</strong></div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>iGel</strong> backup</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Inline EtCO2</strong> + securing device</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>BVM + PEEP 5</strong> · CPAP</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>2 O2 tanks</strong> · NC at 15 LPM</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Cric kit</strong> at bedside</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>IV/IO</strong> secured + flushes</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Low-dose Epi</strong> drawn up</div></div>
+        <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Position:</strong> ear-to-sternal · HOB 15°</div></div>
+      </div></div>
+    </div>
+
+    <div class="accordion warn-acc" id="acc-lemon">
+      <div class="acc-header" onclick="toggleAcc('acc-lemon')">
+        <div class="acc-title"><span class="acc-icon-emoji">🍋</span> LEMON Assessment</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content"><div class="acc-inner">
+        <div class="lemon-table">
+          <div class="lemon-row">
+            <div class="lemon-letter">L</div>
+            <div class="lemon-body"><div class="lemon-word">Look Externally</div><div class="lemon-detail"><ul><li>Facial trauma</li><li>Large incisors</li><li>Beard / moustache</li><li>Large tongue</li></ul></div></div>
+          </div>
+          <div class="lemon-row">
+            <div class="lemon-letter">E</div>
+            <div class="lemon-body"><div class="lemon-word">3-3-2 Rule</div>
+              <div class="lemon-detail">
+                <ul><li>Mouth opening: <strong>3 FB</strong> between incisors</li><li>Chin to hyoid: <strong>3 FB</strong></li><li>Hyoid to thyroid: <strong>2 FB</strong></li></ul>
+              </div>
+            </div>
+          </div>
+          <div class="lemon-row"><div class="lemon-letter">M</div><div class="lemon-body"><div class="lemon-word">Mallampati ≥ 3</div><div class="lemon-detail">Soft / hard palate only visible → difficult.</div></div></div>
+          <div class="lemon-row"><div class="lemon-letter">O</div><div class="lemon-body"><div class="lemon-word">Obstruction</div><div class="lemon-detail">Epiglottitis · peritonsillar abscess · trauma</div></div></div>
+          <div class="lemon-row"><div class="lemon-letter">N</div><div class="lemon-body"><div class="lemon-word">Neck Mobility</div><div class="lemon-detail">C-spine · arthritis · immobilization</div></div></div>
+        </div>
+        <div class="mallampati">
+          <div class="mallampati-title">Mallampati Classification</div>
+          <div class="mallampati-grid">
+            <div class="mp-class"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="40" rx="34" ry="32" fill="#1a0808"/><ellipse cx="40" cy="40" rx="34" ry="32" fill="none" stroke="#8B3030" stroke-width="2.5"/><path d="M 14 24 Q 40 12 66 24" stroke="#D88B7B" stroke-width="3" fill="none"/><path d="M 18 26 Q 22 42 26 56" stroke="#C07060" stroke-width="2.5" fill="none"/><path d="M 62 26 Q 58 42 54 56" stroke="#C07060" stroke-width="2.5" fill="none"/><ellipse cx="40" cy="28" rx="3" ry="9" fill="#D88B7B"/><path d="M 10 75 Q 40 55 70 75 Z" fill="#E0A0A0" stroke="#A04040" stroke-width="1.5"/></svg><div class="mp-num">CLASS I</div><div class="mp-desc">Soft palate, uvula, pillars</div></div>
+            <div class="mp-class"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="40" rx="34" ry="32" fill="#1a0808"/><ellipse cx="40" cy="40" rx="34" ry="32" fill="none" stroke="#8B3030" stroke-width="2.5"/><path d="M 16 28 Q 40 18 64 28" stroke="#D88B7B" stroke-width="3" fill="none"/><ellipse cx="40" cy="32" rx="3" ry="6" fill="#D88B7B"/><path d="M 10 75 Q 40 42 70 75 Z" fill="#E0A0A0" stroke="#A04040" stroke-width="1.5"/></svg><div class="mp-num">CLASS II</div><div class="mp-desc">Soft palate, base of uvula</div></div>
+            <div class="mp-class"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="40" rx="34" ry="32" fill="#1a0808"/><ellipse cx="40" cy="40" rx="34" ry="32" fill="none" stroke="#8B3030" stroke-width="2.5"/><path d="M 18 30 Q 40 22 62 30" stroke="#D88B7B" stroke-width="3" fill="none"/><path d="M 10 75 Q 40 30 70 75 Z" fill="#E0A0A0" stroke="#A04040" stroke-width="1.5"/></svg><div class="mp-num">CLASS III</div><div class="mp-desc">Soft palate only</div></div>
+            <div class="mp-class"><svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="40" rx="34" ry="32" fill="#1a0808"/><ellipse cx="40" cy="40" rx="34" ry="32" fill="none" stroke="#8B3030" stroke-width="2.5"/><path d="M 14 22 Q 40 18 66 22" stroke="#F0C0B0" stroke-width="2" fill="none" stroke-dasharray="3,2"/><path d="M 10 75 Q 40 20 70 75 Z" fill="#E0A0A0" stroke="#A04040" stroke-width="1.5"/></svg><div class="mp-num">CLASS IV</div><div class="mp-desc">Hard palate only</div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="accordion mid-acc" id="acc-considerations">
+      <div class="acc-header" onclick="toggleAcc('acc-considerations')">
+        <div class="acc-title"><span class="acc-icon-emoji">⚠️</span> Key Considerations</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content"><div class="acc-inner">
+        <div class="consid-block">
+          <ul class="consid-list">
+            <li><strong>Can't reach SpO2 94%</strong> → BVM + PEEP 10 · NPA/OPA or iGel</li>
+            <li><strong>Can't intubate</strong> → iGel + ventilate</li>
+            <li><strong>Cric</strong> if oxygenation impossible · needle jet if peds &lt;12</li>
+            <li><strong>2 failed attempts</strong> → change operator OR iGel</li>
+            <li><strong>Can't establish airway</strong> → nearest hospital</li>
+          </ul>
+          <div class="consid-title alt-title">Other</div>
+          <ul class="consid-list">
+            <li><strong>Sux preferred</strong> for neuro exam (seizure / head injury / stroke)</li>
+            <li><strong>Sux CI:</strong> hyperK+ · renal failure · MG · paralysis hx · burns/crush &gt;48h · rhabdo</li>
+            <li><strong>Etomidate not</strong> for post-intubation sedation in DSI</li>
+            <li><strong>Paralytics</strong> don't sedate - always pair with analgesia + sedation</li>
+            <li><strong>Bradycardia:</strong> stop, BVM 100% O2 PEEP 15 · Atropine PRN</li>
+            <li><strong>C-spine:</strong> manual stabilization · collar open during laryngoscopy</li>
+            <li><strong>Head injury:</strong> SBP ≥110 (MAP &gt;80) · EtCO2 35</li>
+          </ul>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="cric-banner">
+      <div class="cric-banner-title">⚠ Failure Path</div>
+      <div class="cric-banner-text">Att. 1 fails → change operator · Att. 2 fails → iGel<br>Can't ox/vent → <strong>Cricothyrotomy</strong> (needle jet if peds &lt;12)</div>
+    </div>
+
+    <div class="dope-box">
+      <div class="dope-title">⚠ DOPE — Tube Trouble</div>
+      <div class="dope-grid">
+        <div class="dope-letter">D</div><div class="dope-text"><strong>Displaced:</strong> Check ETCO2 waveform · breath sounds · tube depth at lip</div>
+        <div class="dope-letter">O</div><div class="dope-text"><strong>Obstructed:</strong> Suction · check for kink · mucus plug · bite block</div>
+        <div class="dope-letter">P</div><div class="dope-text"><strong>Pneumothorax:</strong> Auscultate · decompress if tension</div>
+        <div class="dope-letter">E</div><div class="dope-text"><strong>Equipment:</strong> Vent / O2 source / BVM / cuff inflation</div>
+      </div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+<!-- ADULT CRASH -->
+<div id="view-crash" class="view">
+  <div class="view-header crash-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text"><div class="view-header-title">Adult Crash</div></div>
+    <button class="meds-log-btn" onclick="showMedsLog()"><span class="meds-icon">💊</span><span class="meds-count">0</span></button>
+  </div>
+  <div class="view-body">
+
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn" id="unit-lbs" onclick="setUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn active" id="unit-kg" onclick="setUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="weight-input" id="weight-input" placeholder="0" oninput="calcDoses()" onkeydown="if(event.key==='Enter'){this.blur();calcDoses();scrollToCrashDoses();}">
+        <span class="weight-unit-display" id="unit-display">lbs</span>
+        <button class="weight-enter-btn" onclick="document.getElementById('weight-input').blur();calcDoses();scrollToCrashDoses();">GO</button>
+      </div>
+      <div class="weight-presets" id="preset-row">
+        <button class="preset-btn" onclick="setPreset(110)">110</button>
+        <button class="preset-btn" onclick="setPreset(154)">154</button>
+        <button class="preset-btn" onclick="setPreset(176)">176</button>
+        <button class="preset-btn" onclick="setPreset(220)">220</button>
+        <button class="preset-btn" onclick="setPreset(242)">242</button>
+        <button class="preset-btn" onclick="setPreset(275)">275</button>
+        <button class="preset-btn" onclick="setPreset(308)">308</button>
+        <button class="preset-btn" onclick="setPreset(330)">330</button>
+      </div>
+    </div>
+
+    <div id="no-weight-msg" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="dose-content" style="display:none;">
+      <div class="big-dose-grid">
+        <div class="big-dose-col preferred-col">
+          <div class="pref-col-label">★ PREFERRED</div>
+          <div class="big-card" id="card-crash-ket" onclick="giveMed('crash-ket', 'Ketamine', 'ml-ket', 'mg-ket')">
+            <div class="big-card-head crash-induction"><div class="big-card-name">Ketamine</div><div class="big-card-class">Induction</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml crash-color" id="ml-ket">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="mg-ket">0 mg</div>
+              <div id="max-ket" style="display:none;"><span class="big-max-tag">MAX 200</span></div>
+              <div class="given-stamp" id="given-crash-ket" style="display:none;">✓ GIVEN <span id="given-crash-ket-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-crash-roc" onclick="giveMed('crash-roc', 'Rocuronium', 'ml-roc', 'mg-roc')">
+            <div class="big-card-head crash-paralytic"><div class="big-card-name">Rocuronium</div><div class="big-card-class">Paralytic</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml crash-color" id="ml-roc">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="mg-roc">0 mg</div>
+              <div id="max-roc" style="display:none;"><span class="big-max-tag">MAX 300</span></div>
+              <div class="given-stamp" id="given-crash-roc" style="display:none;">✓ GIVEN <span id="given-crash-roc-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+        </div>
+        <div class="big-dose-col alt-col">
+          <div class="alt-col-label">Alternative</div>
+          <div class="big-card" id="card-crash-eto" onclick="giveMed('crash-eto', 'Etomidate', 'ml-eto', 'mg-eto')">
+            <div class="big-card-head crash-induction"><div class="big-card-name">Etomidate</div><div class="big-card-class">If No Ket</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml crash-color" id="ml-eto">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="mg-eto">0 mg</div>
+              <div id="max-eto" style="display:none;"><span class="big-max-tag">MAX 60</span></div>
+              <div class="given-stamp" id="given-crash-eto" style="display:none;">✓ GIVEN <span id="given-crash-eto-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-crash-sux" onclick="giveMed('crash-sux', 'Succinylcholine', 'ml-sux', 'mg-sux')">
+            <div class="big-card-head crash-paralytic"><div class="big-card-name">Sux</div><div class="big-card-class">Neuro Exam</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml crash-color" id="ml-sux">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="mg-sux">0 mg</div>
+              <div id="max-sux" style="display:none;"><span class="big-max-tag">MAX 300</span></div>
+              <div class="given-stamp" id="given-crash-sux" style="display:none;">✓ GIVEN <span id="given-crash-sux-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="nav-btn" onclick="goToPost('crash')">
+        <div class="nav-btn-title">Post-Intubation →</div>
+        <span class="nav-btn-arrow">›</span>
+      </button>
+
+      <div class="warn-box">
+        <strong>Shock / MAP &lt;65:</strong> half-dose induction<br>
+        <strong>Sux CI:</strong> hyperK+ · renal failure · neuromuscular hx · burns/crush &gt;48h · rhabdo<br>
+        <strong>Roc:</strong> avoid stroke/neurotrauma if transport &lt;45 min
+      </div>
+    </div>
+
+    <div class="cric-banner">
+      <div class="cric-banner-title">⚠ Failure Path</div>
+      <div class="cric-banner-text">SpO2 &lt;88% + can't ox/vent → <strong>Cricothyrotomy</strong><br>Peds &lt;12 → <strong>Needle jet</strong></div>
+    </div>
+
+    <div class="dope-box">
+      <div class="dope-title">⚠ DOPE — Tube Trouble</div>
+      <div class="dope-grid">
+        <div class="dope-letter">D</div><div class="dope-text"><strong>Displaced:</strong> Check ETCO2 waveform · breath sounds · tube depth at lip</div>
+        <div class="dope-letter">O</div><div class="dope-text"><strong>Obstructed:</strong> Suction · check for kink · mucus plug · bite block</div>
+        <div class="dope-letter">P</div><div class="dope-text"><strong>Pneumothorax:</strong> Auscultate · decompress if tension</div>
+        <div class="dope-letter">E</div><div class="dope-text"><strong>Equipment:</strong> Vent / O2 source / BVM / cuff inflation</div>
+      </div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- PEDS -->
+<div id="view-peds" class="view">
+  <div class="view-header peds-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text"><div class="view-header-title">Peds RSI / DSI</div></div>
+    <button class="meds-log-btn" onclick="showMedsLog()"><span class="meds-icon">💊</span><span class="meds-count">0</span></button>
+  </div>
+  <div class="view-body peds-body">
+
+    <div class="peds-intro">
+      <div class="peds-intro-label">Select Age</div>
+      <div class="peds-age-grid" id="peds-age-grid"></div>
+      <div class="peds-length-divider">OR ENTER LENGTH</div>
+      <div class="peds-length-row">
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="peds-length-input" id="peds-length-input" placeholder="0" oninput="selectByLength()" onkeydown="if(event.key==='Enter'){this.blur();selectByLength();}">
+        <span class="peds-length-unit">in</span>
+        <button class="peds-length-btn" onclick="document.getElementById('peds-length-input').blur();selectByLength();">GO</button>
+      </div>
+    </div>
+
+    <div id="peds-no-selection" class="no-weight-msg">Tap an age or enter length</div>
+
+    <div id="peds-results" style="display:none;">
+      <div class="peds-summary">
+        <div class="peds-broselow-stripe" id="peds-broselow"></div>
+        <div class="peds-summary-age" id="peds-age-display">-</div>
+        <div class="peds-summary-grid">
+          <div class="peds-stat"><div class="peds-stat-label">Weight</div><div class="peds-stat-value" id="peds-weight">- kg</div><div class="peds-stat-sub" id="peds-weight-lbs">- lbs</div></div>
+          <div class="peds-stat"><div class="peds-stat-label">ETT</div><div class="peds-stat-value" id="peds-ett">-</div><div class="peds-stat-sub" id="peds-length">-</div></div>
+          <div class="peds-stat"><div class="peds-stat-label">iGel</div><div class="peds-stat-value" id="peds-igel">-</div><div class="peds-stat-sub">Size</div></div>
+        </div>
+      </div>
+
+      <div class="vs-banner peds-vs" id="peds-vs-banner">
+        <div class="vs-banner-title">Target Vital Signs</div>
+        <div class="vs-banner-sub">Hit BOTH × 3 min before paralytic</div>
+        <div class="vs-grid">
+          <div class="vs-cell" id="peds-vs-spo2" onclick="pedsVsCellTap('spo2')">
+            <div class="vs-value">SpO₂ ≥94%</div>
+            <div class="vs-label">CPAP / BVM + PEEP</div>
+          </div>
+          <div class="vs-cell" id="peds-vs-bp" onclick="pedsVsCellTap('bp')">
+            <div class="vs-value">Age-Appropriate<br>SBP / MAP</div>
+            <div class="vs-label">Fluids / Low-Dose Epi</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-inline" id="peds-timer-section">
+        <div class="timer-label">3-Minute Timer</div>
+        <div class="timer-display" id="peds-timer">3:00</div>
+        <div class="timer-btn-row">
+          <button class="timer-btn start" id="peds-start-btn" onclick="pedsManualStart()">START</button>
+          <button class="timer-btn reset" onclick="pedsResetTimer()">RESET</button>
+        </div>
+        <div class="timer-status" id="peds-timer-status">​</div>
+        <div class="timer-met-banner">✓ 3 MIN MET — PROCEED</div>
+      </div>
+
+      <div class="big-dose-grid">
+        <div class="big-dose-col preferred-col">
+          <div class="pref-col-label">★ PREFERRED</div>
+          <div class="big-card" id="card-peds-ket" onclick="giveMed('peds-ket', 'Ketamine (Peds)', 'p-ml-ket', 'p-mg-ket')">
+            <div class="big-card-head peds-induction"><div class="big-card-name">Ketamine</div><div class="big-card-class">Induction</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-ket">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-ket">0 mg</div>
+              <div class="given-stamp" id="given-peds-ket" style="display:none;">✓ GIVEN <span id="given-peds-ket-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-peds-roc" onclick="giveMed('peds-roc', 'Rocuronium (Peds)', 'p-ml-roc', 'p-mg-roc')">
+            <div class="big-card-head peds-paralytic"><div class="big-card-name">Rocuronium</div><div class="big-card-class">Paralytic</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-roc">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-roc">0 mg</div>
+              <div class="given-stamp" id="given-peds-roc" style="display:none;">✓ GIVEN <span id="given-peds-roc-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+        </div>
+        <div class="big-dose-col alt-col">
+          <div class="alt-col-label">Alternative</div>
+          <div class="big-card" id="card-peds-eto" onclick="giveMed('peds-eto', 'Etomidate (Peds)', 'p-ml-eto', 'p-mg-eto')">
+            <div class="big-card-head peds-induction"><div class="big-card-name">Etomidate</div><div class="big-card-class">If No Ket</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-eto">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-eto">0 mg</div>
+              <div class="given-stamp" id="given-peds-eto" style="display:none;">✓ GIVEN <span id="given-peds-eto-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+          <div class="big-card" id="card-peds-sux" onclick="giveMed('peds-sux', 'Succinylcholine (Peds)', 'p-ml-sux', 'p-mg-sux')">
+            <div class="big-card-head peds-paralytic"><div class="big-card-name">Sux</div><div class="big-card-class">Neuro Exam</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-sux">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-sux">0 mg</div>
+              <div class="given-stamp" id="given-peds-sux" style="display:none;">✓ GIVEN <span id="given-peds-sux-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Midazolam (Alt Induction)</div>
+      <div class="single-big-card" id="card-peds-midaz" onclick="giveMed('peds-midaz', 'Midazolam (Peds)', 'p-ml-midaz', 'p-mg-midaz')">
+        <div class="big-card-head peds-induction"><div class="big-card-name">Midazolam</div><div class="big-card-class">Alt Induction</div></div>
+        <div class="big-card-body">
+          <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-midaz">0</span><span class="big-ml-inline-unit">mL</span></div>
+          <div class="big-mg" id="p-mg-midaz">0 mg</div>
+          <div class="given-stamp" id="given-peds-midaz" style="display:none;">✓ GIVEN <span id="given-peds-midaz-time">--:--</span></div>
+        </div>
+        <div class="big-card-foot">0.1 mg/kg · 1 mg/mL</div>
+      </div>
+
+      <button class="nav-btn peds-nav" onclick="goToPost('peds')">
+        <div class="nav-btn-title">Post-Intubation →</div>
+        <span class="nav-btn-arrow">›</span>
+      </button>
+
+      <div class="section-label">Quick Post-Intubation</div>
+      <div class="big-dose-grid" style="margin-top:8px;">
+        <div class="big-dose-col alt-col">
+          <div class="big-card" id="card-peds-fen" onclick="giveMed('peds-fen', 'Fentanyl (Peds)', 'p-ml-fen', 'p-mg-fen')">
+            <div class="big-card-head peds-paralytic"><div class="big-card-name">Fentanyl</div><div class="big-card-class">Analgesia</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-fen">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-fen">0 mcg</div>
+              <div class="given-stamp" id="given-peds-fen" style="display:none;">✓ GIVEN <span id="given-peds-fen-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1 mcg/kg · 50 mcg/mL</div>
+          </div>
+        </div>
+        <div class="big-dose-col alt-col">
+          <div class="big-card" id="card-peds-ketpost" onclick="giveMed('peds-ketpost', 'Ketamine Post (Peds)', 'p-ml-ketpost', 'p-mg-ketpost')">
+            <div class="big-card-head peds-paralytic"><div class="big-card-name">Ketamine</div><div class="big-card-class">Sedation</div></div>
+            <div class="big-card-body">
+              <div class="big-ml-row"><span class="big-ml peds-color" id="p-ml-ketpost">0</span><span class="big-ml-inline-unit">mL</span></div>
+              <div class="big-mg" id="p-mg-ketpost">0 mg</div>
+              <div class="given-stamp" id="given-peds-ketpost" style="display:none;">✓ GIVEN <span id="given-peds-ketpost-time">--:--</span></div>
+            </div>
+            <div class="big-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <strong>Peds rescue:</strong> needle jet if &lt;12 yr<br>
+        <strong>Sux CI:</strong> hyperK+ · renal failure · neuromuscular hx · burns/crush &gt;48h · rhabdo<br>
+        Verify weight with length tape if available
+      </div>
+    </div>
+
+    <div class="cric-banner" style="margin-top:16px;">
+      <div class="cric-banner-title">⚠ Peds Failure</div>
+      <div class="cric-banner-text">Can't ox/vent → <strong>Needle jet</strong> (&lt;12 yr)</div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- POST-INTUBATION -->
+<div id="view-post" class="view">
+  <div class="view-header post-header">
+    <button class="back-btn" onclick="backFromPost()">‹</button>
+    <div class="view-header-text"><div class="view-header-title">Post-Intubation</div></div>
+    <button class="meds-log-btn" onclick="showMedsLog()"><span class="meds-icon">💊</span><span class="meds-count">0</span></button>
+  </div>
+  <div class="view-body">
+
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn" id="post-unit-lbs" onclick="setPostUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn active" id="post-unit-kg" onclick="setPostUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="weight-input" id="post-weight-input" placeholder="0" oninput="calcPostDoses()" onkeydown="if(event.key==='Enter'){this.blur();calcPostDoses();}">
+        <span class="weight-unit-display" id="post-unit-display">lbs</span>
+        <button class="weight-enter-btn" onclick="document.getElementById('post-weight-input').blur();calcPostDoses();">GO</button>
+      </div>
+      <div class="weight-presets" id="post-preset-row">
+        <button class="preset-btn" onclick="setPostPreset(110)">110</button>
+        <button class="preset-btn" onclick="setPostPreset(154)">154</button>
+        <button class="preset-btn" onclick="setPostPreset(176)">176</button>
+        <button class="preset-btn" onclick="setPostPreset(220)">220</button>
+        <button class="preset-btn" onclick="setPostPreset(242)">242</button>
+        <button class="preset-btn" onclick="setPostPreset(275)">275</button>
+        <button class="preset-btn" onclick="setPostPreset(308)">308</button>
+        <button class="preset-btn" onclick="setPostPreset(330)">330</button>
+      </div>
+    </div>
+
+    <div id="post-no-weight" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="post-doses" style="display:none;">
+      <div class="post-drug-card" id="card-post-fen" onclick="givePostMed('post-fen', 'Fentanyl Post', 'post-fen-ml', 'post-fen-mcg')">
+        <div class="post-drug-head"><div class="post-drug-name">Fentanyl</div><div class="post-drug-role">Analgesia</div></div>
+        <div class="post-drug-body">
+          <div class="post-ml-row"><span class="post-ml-huge" id="post-fen-ml">0</span><span class="post-ml-unit-inline">mL</span></div>
+          <div class="post-mg-line"><span id="post-fen-mcg">0 mcg</span><span id="post-fen-max" style="display:none;" class="post-max-tag">MAX 100 mcg</span></div>
+          <div class="post-given-stamp" id="given-post-fen" style="display:none;">✓ GIVEN <span id="given-post-fen-time">--:--</span></div>
+          <div class="redose-badge" id="redose-post-fen" style="display:none;"><span class="redose-label">Re-dose timer</span><span id="redose-post-fen-time">5:00</span></div>
+        </div>
+        <div class="post-drug-foot">1 mcg/kg · 50 mcg/mL · <strong>q5-10 min PRN x 1 hr</strong></div>
+      </div>
+
+      <div class="post-drug-card preferred" id="card-post-ket" onclick="givePostMed('post-ket', 'Ketamine Post', 'post-ket-ml', 'post-ket-mg')">
+        <div class="post-drug-head ket-head"><div class="post-drug-name">Ketamine</div><div class="post-drug-role">★ Sedation</div></div>
+        <div class="post-drug-body">
+          <div class="post-ml-row"><span class="post-ml-huge ket-color" id="post-ket-ml">0</span><span class="post-ml-unit-inline">mL</span></div>
+          <div class="post-mg-line"><span id="post-ket-mg">0 mg</span><span id="post-ket-max" style="display:none;" class="post-max-tag">MAX 200 mg</span></div>
+          <div class="post-given-stamp" id="given-post-ket" style="display:none;">✓ GIVEN <span id="given-post-ket-time">--:--</span></div>
+          <div class="redose-badge" id="redose-post-ket" style="display:none;"><span class="redose-label">Re-dose timer</span><span id="redose-post-ket-time">15:00</span></div>
+        </div>
+        <div class="post-drug-foot">1 mg/kg slow push · 50 mg/mL · <strong>q15 min PRN</strong></div>
+      </div>
+    </div>
+
+    <div class="post-drug-card" id="card-post-midaz" onclick="giveStaticMed('post-midaz', 'Midazolam Post', '5 mg fixed')">
+      <div class="post-drug-head midaz-head"><div class="post-drug-name">Midazolam</div><div class="post-drug-role">Alt Sedation</div></div>
+      <div class="post-drug-body">
+        <div class="post-ml-row"><span class="post-ml-huge midaz-color">5</span><span class="post-ml-unit-inline">mg</span></div>
+        <div class="post-mg-line" id="post-midaz-bolus" style="font-size: 15px; color: var(--text-muted);">Weight-based bolus alt: <span id="post-midaz-wt">0 mg</span></div>
+        <div class="post-given-stamp" id="given-post-midaz" style="display:none;">✓ GIVEN <span id="given-post-midaz-time">--:--</span></div>
+        <div class="redose-badge" id="redose-post-midaz" style="display:none;"><span class="redose-label">Re-dose timer</span><span id="redose-post-midaz-time">15:00</span></div>
+      </div>
+      <div class="midaz-q-row" onclick="event.stopPropagation()">
+        Concentration: 1 mg/mL
+        <button class="midaz-q-btn" onclick="event.stopPropagation();openRedPopup()">?</button>
+      </div>
+      <div class="post-drug-foot"><strong>5 mg IV/IO q15 min x 4, then PRN</strong><br>Alt: 0.05 mg/kg bolus → 0.1 mg/kg/hr pump</div>
+    </div>
+
+    <div class="warn-box">
+      <strong>RASS target -2 to -3</strong> · pain → -4<br>
+      <strong>Vent</strong> 10-12 BPM · SpO2 94-98 · EtCO2 35-45<br>
+      <strong>Head injury:</strong> SBP ≥110 · EtCO2 35
+    </div>
+
+    <div class="dope-box">
+      <div class="dope-title">⚠ DOPE — Tube Trouble</div>
+      <div class="dope-grid">
+        <div class="dope-letter">D</div><div class="dope-text"><strong>Displaced:</strong> Check ETCO2 waveform · breath sounds · tube depth at lip</div>
+        <div class="dope-letter">O</div><div class="dope-text"><strong>Obstructed:</strong> Suction · check for kink · mucus plug · bite block</div>
+        <div class="dope-letter">P</div><div class="dope-text"><strong>Pneumothorax:</strong> Auscultate · decompress if tension</div>
+        <div class="dope-letter">E</div><div class="dope-text"><strong>Equipment:</strong> Vent / O2 source / BVM / cuff inflation</div>
+      </div>
+    </div>
+
+    <div class="accordion" id="acc-rass" style="margin-top:16px;">
+      <div class="acc-header" onclick="toggleAcc('acc-rass')">
+        <div class="acc-title"><span class="acc-icon-emoji">📊</span> RASS Scale</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content"><div class="acc-inner">
+        <div class="rass-wrap">
+          <table class="rass-table">
+            <tr><th>Score</th><th>Label</th><th>Description</th></tr>
+            <tr><td class="rass-score rass-pos">+4</td><td>Combative</td><td>Violent, danger to staff</td></tr>
+            <tr><td class="rass-score rass-pos">+3</td><td>Very agitated</td><td>Pulls tubes; aggressive</td></tr>
+            <tr><td class="rass-score rass-pos">+2</td><td>Agitated</td><td>Non-purposeful; fights vent</td></tr>
+            <tr><td class="rass-score rass-pos">+1</td><td>Restless</td><td>Anxious, not aggressive</td></tr>
+            <tr><td class="rass-score rass-zero">0</td><td>Alert</td><td>Attentive</td></tr>
+            <tr><td class="rass-score rass-neg">-1</td><td>Drowsy</td><td>Sustained wake to voice &gt;10s</td></tr>
+            <tr class="rass-target"><td class="rass-score rass-neg">-2</td><td>Light sed.</td><td>Brief wake to voice &lt;10s</td></tr>
+            <tr class="rass-target"><td class="rass-score rass-neg">-3</td><td>Mod. sed.</td><td>Eye open to voice</td></tr>
+            <tr><td class="rass-score rass-neg">-4</td><td>Deep sed.</td><td>Response to physical only</td></tr>
+            <tr><td class="rass-score rass-neg">-5</td><td>Unarousable</td><td>No response</td></tr>
+          </table>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- ADMIN / CONCENTRATIONS -->
+<div id="view-admin" class="view">
+  <div class="view-header" style="background:#222;">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text"><div class="view-header-title">Concentrations</div></div>
+  </div>
+  <div class="view-body">
+    <div class="admin-note">Verify these against your agency's stock before use. Based on 2026 Clark County EMS Patient Care Protocols.</div>
+    <div class="conc-table">
+      <div class="conc-row conc-head"><div>Drug</div><div>Conc.</div><div>Dose</div><div>Max</div></div>
+      <div class="conc-row"><div class="conc-drug">Ketamine</div><div>50 mg/mL</div><div>1 mg/kg</div><div>200 mg</div></div>
+      <div class="conc-row"><div class="conc-drug">Rocuronium</div><div>10 mg/mL</div><div>1.5 mg/kg</div><div>300 mg</div></div>
+      <div class="conc-row"><div class="conc-drug">Etomidate</div><div>2 mg/mL</div><div>0.3 mg/kg</div><div>60 mg</div></div>
+      <div class="conc-row"><div class="conc-drug">SUX</div><div>20 mg/mL</div><div>1.5 mg/kg</div><div>300 mg</div></div>
+      <div class="conc-row"><div class="conc-drug">Fentanyl</div><div>50 mcg/mL</div><div>1 mcg/kg</div><div>100 mcg</div></div>
+      <div class="conc-row"><div class="conc-drug">Midazolam</div><div>1 mg/mL<br><span class="conc-sub">(5 mg / 5 mL)</span></div><div>5 mg post<br>0.1 mg/kg peds</div><div>—</div></div>
+    </div>
+    <div class="admin-foot">If your agency stocks a different concentration (e.g. Midazolam 5 mg/mL), the mL volumes in this app will be wrong. Confirm before administration.</div>
+    <div class="admin-contact">Questions, comments, concerns — contact<br><a href="mailto:d.boyce@northcountryems.org">d.boyce@northcountryems.org</a></div>
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- MAX-DOSE CONFIRM -->
+<div id="maxdose-modal" class="red-popup-overlay">
+  <div class="red-popup-box" onclick="event.stopPropagation()">
+    <strong>⚠ MAX DOSE</strong>
+    <span id="maxdose-text">You may have met the maximum dosage.</span>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;">
+      <button class="maxdose-btn give" onclick="maxDoseProceed()">GIVE DOSE ANYWAY</button>
+      <button class="maxdose-btn back" onclick="maxDoseCancel()">RETURN TO LAST PAGE</button>
+    </div>
+  </div>
+</div>
+
+<!-- RED POPUP (Midazolam concentration warning) -->
+<div id="red-popup" class="red-popup-overlay" onclick="closeRedPopup()">
+  <div class="red-popup-box">
+    <strong>⚠ WARNING</strong>
+    This protocol is based off of <strong style="display:inline;font-size:16px;margin:0;">5 mg per 5 mL</strong> (1 mg/mL). Verify your agency's concentration before drawing up — other agencies may stock different.
+    <div class="red-popup-tap">Tap anywhere to close</div>
+  </div>
+</div>
+
+<!-- MEDS LOG MODAL -->
+<div id="meds-log-modal" class="meds-modal" style="display:none;" onclick="if(event.target===this)hideMedsLog()">
+  <div class="meds-modal-content">
+    <div class="meds-modal-header">
+      <div class="meds-modal-title">💊 Meds Given</div>
+      <button class="meds-modal-close" onclick="hideMedsLog()">×</button>
+    </div>
+    <div id="meds-list-body"></div>
+    <div class="meds-modal-actions">
+      <button class="close-meds-btn" onclick="hideMedsLog()">CLOSE</button>
+      <button class="clear-meds-btn" onclick="clearMedsLog()">CLEAR ALL</button>
+    </div>
+  </div>
+</div>
+<script>
+  // PEDS DATA
+  const pedsData = [
+    { age: 'TERM',   kg: 3,  ett: '2.5mm',     igel: '1',   length: '16-20"', minIn: 16, maxIn: 20, broselow: 'grey'   },
+    { age: '3 MOS',  kg: 5,  ett: '3.0mm',     igel: '1',   length: '20-23"', minIn: 20, maxIn: 23, broselow: 'grey'   },
+    { age: '6 MOS',  kg: 7,  ett: '3.0mm',     igel: '1.5', length: '23-26"', minIn: 23, maxIn: 26, broselow: 'pink'   },
+    { age: '1 YR',   kg: 9,  ett: '3.0-3.5mm', igel: '1.5', length: '26-30"', minIn: 26, maxIn: 30, broselow: 'red'    },
+    { age: '18 MOS', kg: 11, ett: '3.0-3.5mm', igel: '1.5', length: '30-33"', minIn: 30, maxIn: 33, broselow: 'purple' },
+    { age: '2 YR',   kg: 13, ett: '3.5-4.0mm', igel: '2',   length: '33-36"', minIn: 33, maxIn: 36, broselow: 'yellow' },
+    { age: '3 YR',   kg: 16, ett: '3.5-4.0mm', igel: '2',   length: '36-39"', minIn: 36, maxIn: 39, broselow: 'white'  },
+    { age: '4 YR',   kg: 18, ett: '3.5-4.0mm', igel: '2',   length: '39-41"', minIn: 39, maxIn: 41, broselow: 'white'  },
+    { age: '5 YR',   kg: 20, ett: '4.0-4.5mm', igel: '2',   length: '41-44"', minIn: 41, maxIn: 44, broselow: 'blue'   },
+    { age: '6 YR',   kg: 22, ett: '4.5-5.0mm', igel: '2',   length: '44-47"', minIn: 44, maxIn: 47, broselow: 'blue'   },
+    { age: '7 YR',   kg: 24, ett: '4.5-5.0mm', igel: '2',   length: '47-48"', minIn: 47, maxIn: 48, broselow: 'orange' },
+    { age: '8 YR',   kg: 26, ett: '5.0-5.5mm', igel: '2.5', length: '48-49"', minIn: 48, maxIn: 49, broselow: 'orange' },
+    { age: '9 YR',   kg: 28, ett: '5.0-5.5mm', igel: '2.5', length: '49-50"', minIn: 49, maxIn: 50, broselow: 'orange' },
+    { age: '10 YR',  kg: 30, ett: '5.0-5.5mm', igel: '2.5', length: '50-52"', minIn: 50, maxIn: 52, broselow: 'green'  },
+    { age: '11 YR',  kg: 34, ett: '5.5-6.0mm', igel: '2.5', length: '52-54"', minIn: 52, maxIn: 54, broselow: 'green'  },
+    { age: '12 YR',  kg: 36, ett: '6.0-6.5mm', igel: '3',   length: '54-58"', minIn: 54, maxIn: 58, broselow: 'green'  },
+  ];
+
+  const presetsLbs = [110, 154, 176, 220, 242, 275, 308, 330];
+  const presetsKg  = [50,  70,  80,  100, 110, 125, 140, 150];
+
+  // MEDS GIVEN STATE
+  let medsGiven = JSON.parse(localStorage.getItem('medsGiven') || '[]');
+
+  function nowTimeStr() {
+    const d = new Date();
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    return h + ':' + m;
+  }
+
+  // Max-dose warning — shown ONCE per drug family per session.
+  function getDrugMax(name) {
+    if (name.indexOf('Ketamine') === 0)        return { drug: 'Ketamine', max: '200 mg', fam: 'ket' };
+    if (name.indexOf('Rocuronium') === 0)      return { drug: 'Rocuronium', max: '300 mg', fam: 'roc' };
+    if (name.indexOf('Etomidate') === 0)       return { drug: 'Etomidate', max: '60 mg', fam: 'eto' };
+    if (name.indexOf('Succinylcholine') === 0) return { drug: 'SUX', max: '300 mg', fam: 'sux' };
+    if (name.indexOf('Midazolam') === 0)       return { drug: 'Midazolam', max: '5 mg per dose (q15 min × 4, then PRN)', fam: 'midaz' };
+    return null;
+  }
+  let maxDoseAcked = {};   // drug families the medic has already acknowledged this session
+  let pendingGive = null;  // function to run if they choose "Give Dose Anyway"
+
+  // Returns true to proceed now, or false if a warning modal was shown (action deferred to the buttons).
+  function maxDoseGate(key, drugName, proceedFn) {
+    const alreadyGiven = medsGiven.filter(m => m.key === key).length;
+    if (alreadyGiven < 1) return true;          // first dose is capped at max — no warning
+    const info = getDrugMax(drugName);
+    if (!info) return true;
+    if (maxDoseAcked[info.fam]) return true;     // already warned once for this drug — don't nag again
+    // Show the custom modal; defer the actual give to the buttons
+    pendingGive = function() { maxDoseAcked[info.fam] = true; proceedFn(); };
+    document.getElementById('maxdose-text').textContent =
+      'You may have met the maximum dosage for ' + info.drug + '. Protocol max: ' + info.max + '.';
+    document.getElementById('maxdose-modal').classList.add('show');
+    return false;
+  }
+
+  function maxDoseProceed() {
+    document.getElementById('maxdose-modal').classList.remove('show');
+    const fn = pendingGive; pendingGive = null;
+    if (fn) fn();
+  }
+  function maxDoseCancel() {
+    document.getElementById('maxdose-modal').classList.remove('show');
+    pendingGive = null;
+  }
+
+  function giveMed(key, drugName, mlElId, mgElId) {
+    const mlEl = document.getElementById(mlElId);
+    const mgEl = document.getElementById(mgElId);
+    if (!mlEl || !mgEl) return;
+    const ml = mlEl.textContent;
+    const mg = mgEl.textContent;
+    if (!ml || ml === '0' || ml === '') return;
+    const doIt = function() { recordMed(key, drugName, ml + ' mL', mg); };
+    if (maxDoseGate(key, drugName, doIt)) doIt();
+  }
+
+  function givePostMed(key, drugName, mlElId, mgElId) {
+    const mlEl = document.getElementById(mlElId);
+    const mgEl = document.getElementById(mgElId);
+    if (!mlEl || !mgEl) return;
+    const ml = mlEl.textContent;
+    const mg = mgEl.textContent;
+    if (!ml || ml === '0' || ml === '') return;
+    const doIt = function() { recordMed(key, drugName, ml + ' mL', mg); startRedose(key); };
+    if (maxDoseGate(key, drugName, doIt)) doIt();
+  }
+
+  function giveStaticMed(key, drugName, dose) {
+    const doIt = function() { recordMed(key, drugName, dose, ''); startRedose(key); };
+    if (maxDoseGate(key, drugName, doIt)) doIt();
+  }
+
+  function openRedPopup() {
+    document.getElementById('red-popup').classList.add('show');
+  }
+  function closeRedPopup() {
+    document.getElementById('red-popup').classList.remove('show');
+  }
+
+  function recordMed(key, drugName, doseStr, mgStr) {
+    const timeStr = nowTimeStr();
+    medsGiven.push({ key: key, drug: drugName, dose: doseStr, mg: mgStr, time: timeStr, ts: Date.now() });
+    try { localStorage.setItem('medsGiven', JSON.stringify(medsGiven)); } catch(e) {}
+    markCardGiven(key, timeStr);
+    updateMedsCount();
+  }
+
+  // ===== POST-INT RE-DOSE TIMERS =====
+  // Protocol intervals: Fentanyl q5-10 min (timer at 5), Ketamine q15, Midazolam q15
+  const redoseSeconds = { 'post-fen': 300, 'post-ket': 900, 'post-midaz': 900 };
+  const redoseTimers = {};
+
+  function startRedose(key) {
+    if (!(key in redoseSeconds)) return;
+    // Clear existing timer for this med (re-dosing resets the clock)
+    if (redoseTimers[key]) clearInterval(redoseTimers[key].interval);
+    const card = document.getElementById('card-' + key);
+    const badge = document.getElementById('redose-' + key);
+    const timeEl = document.getElementById('redose-' + key + '-time');
+    if (!badge || !timeEl) return;
+    if (card) card.classList.remove('redose-due');
+    badge.style.display = 'inline-block';
+    let remaining = redoseSeconds[key];
+    timeEl.textContent = fmtRedose(remaining);
+    redoseTimers[key] = {
+      interval: setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(redoseTimers[key].interval);
+          timeEl.textContent = 'RE-DOSE';
+          if (card) card.classList.add('redose-due');
+        } else {
+          timeEl.textContent = fmtRedose(remaining);
+        }
+      }, 1000)
+    };
+  }
+
+  function fmtRedose(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function clearAllRedose() {
+    Object.keys(redoseTimers).forEach(k => {
+      if (redoseTimers[k]) clearInterval(redoseTimers[k].interval);
+      const card = document.getElementById('card-' + k);
+      const badge = document.getElementById('redose-' + k);
+      if (card) card.classList.remove('redose-due');
+      if (badge) badge.style.display = 'none';
+    });
+  }
+
+  function markCardGiven(key, timeStr) {
+    const card = document.getElementById('card-' + key);
+    if (card) card.classList.add('given');
+    const count = medsGiven.filter(m => m.key === key).length;
+    const stamp = document.getElementById('given-' + key);
+    if (stamp) {
+      stamp.style.display = 'inline-block';
+      const timeEl = document.getElementById('given-' + key + '-time');
+      if (timeEl) {
+        timeEl.textContent = count > 1 ? '×' + count + ' · last ' + timeStr : timeStr;
+      }
+    }
+  }
+
+  function updateMedsCount() {
+    document.querySelectorAll('.meds-count').forEach(c => { c.textContent = medsGiven.length; });
+  }
+
+  function restoreGivenStates() {
+    medsGiven.forEach(m => markCardGiven(m.key, m.time));
+    updateMedsCount();
+  }
+
+  function showMedsLog() {
+    const body = document.getElementById('meds-list-body');
+    if (medsGiven.length === 0) {
+      body.innerHTML = '<div class="empty-meds">No medications given yet.<br>Tap any med card to log it.</div>';
+    } else {
+      body.innerHTML = medsGiven.map(function(m, idx) {
+        const dose = m.dose + (m.mg ? ' · ' + m.mg : '');
+        return '<div class="med-log-item"><div><div class="med-log-drug">' + m.drug + '</div><div class="med-log-dose">' + dose + '</div></div><div class="med-log-time">' + m.time + '</div><button class="med-log-del" onclick="deleteMed(' + idx + ')">×</button></div>';
+      }).join('');
+    }
+    document.getElementById('meds-log-modal').style.display = 'flex';
+  }
+
+  function deleteMed(idx) {
+    const m = medsGiven[idx];
+    if (!m) return;
+    const key = m.key;
+    medsGiven.splice(idx, 1);
+    try { localStorage.setItem('medsGiven', JSON.stringify(medsGiven)); } catch(e) {}
+    // If no more doses of this drug remain, clear its given stamp/card + redose timer
+    const stillGiven = medsGiven.some(x => x.key === key);
+    if (!stillGiven) {
+      const card = document.getElementById('card-' + key);
+      if (card) card.classList.remove('given', 'redose-due');
+      const stamp = document.getElementById('given-' + key);
+      if (stamp) stamp.style.display = 'none';
+      const badge = document.getElementById('redose-' + key);
+      if (badge) badge.style.display = 'none';
+      if (redoseTimers[key]) { clearInterval(redoseTimers[key].interval); }
+    } else {
+      // refresh the count text on the remaining card stamp
+      const last = [...medsGiven].reverse().find(x => x.key === key);
+      if (last) markCardGiven(key, last.time);
+    }
+    updateMedsCount();
+    showMedsLog();
+  }
+
+  function hideMedsLog() {
+    document.getElementById('meds-log-modal').style.display = 'none';
+  }
+
+  function clearMedsLog() {
+    if (!confirm('Clear ALL medications given? (Start of new call.)')) return;
+    medsGiven = [];
+    try { localStorage.setItem('medsGiven', '[]'); } catch(e) {}
+    document.querySelectorAll('.big-card.given, .post-drug-card.given, .single-big-card.given').forEach(c => c.classList.remove('given'));
+    document.querySelectorAll('.given-stamp, .post-given-stamp').forEach(s => s.style.display = 'none');
+    clearAllRedose();
+    maxDoseAcked = {};
+    updateMedsCount();
+    hideMedsLog();
+  }
+
+  // NAVIGATION
+  let postBackTarget = 'splash';
+
+  function showView(id) {
+    document.getElementById('splash').style.display = 'none';
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showSplash() {
+    document.getElementById('splash').style.display = 'flex';
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    resetTimer();
+    pedsResetTimer();
+  }
+
+  function goToPost(fromView) {
+    postBackTarget = fromView;
+    let val = null, unit = null;
+    if (fromView === 'crash' && currentKg) {
+      val = document.getElementById('weight-input').value;
+      unit = weightUnit;
+    } else if (fromView === 'dsi' && dsiCurrentKg) {
+      val = document.getElementById('dsi-weight-input').value;
+      unit = dsiWeightUnit;
+    } else if (fromView === 'peds' && selectedPedsIndex !== null) {
+      val = pedsData[selectedPedsIndex].kg;
+      unit = 'kg';
+    }
+    if (val) {
+      document.getElementById('post-weight-input').value = val;
+      postWeightUnit = unit;
+      document.getElementById('post-unit-lbs').classList.toggle('active', unit === 'lbs');
+      document.getElementById('post-unit-kg').classList.toggle('active', unit === 'kg');
+      document.getElementById('post-unit-display').textContent = unit;
+      updatePostPresetLabels();
+      calcPostDoses();
+    }
+    showView('post');
+  }
+
+  function backFromPost() {
+    if (postBackTarget === 'splash') showSplash();
+    else showView(postBackTarget);
+  }
+
+  function toggleCheck(el) { el.classList.toggle('checked'); }
+  function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+
+  // AUTO-SCROLL
+  function scrollToDsiVS() {
+    setTimeout(() => {
+      const el = document.getElementById('dsi-vs-banner');
+      if (el && document.getElementById('view-dsi').classList.contains('active')) {
+        el.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+    }, 200);
+  }
+  function scrollToDsiTimer() {
+    setTimeout(() => {
+      const el = document.getElementById('dsi-timer-section');
+      if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, 200);
+  }
+  function scrollToCrashDoses() {
+    setTimeout(() => {
+      const el = document.getElementById('dose-content');
+      if (el && el.style.display !== 'none') el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, 200);
+  }
+  function scrollToPedsVS() {
+    setTimeout(() => {
+      const el = document.getElementById('peds-vs-banner');
+      if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, 200);
+  }
+  function scrollToPedsTimer() {
+    setTimeout(() => {
+      const el = document.getElementById('peds-timer-section');
+      if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }, 200);
+  }
+
+  // DSI TIMER
+  let dsiInterval = null;
+  let dsiSeconds = 180;
+  let dsiRunning = false;
+
+  function updateTimerDisplay(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    document.getElementById('dsi-timer').textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+  }
+
+  function startTimer() {
+    if (dsiRunning) return;
+    dsiRunning = true;
+    const display = document.getElementById('dsi-timer');
+    const status = document.getElementById('dsi-timer-status');
+    const btn = document.getElementById('dsi-start-btn');
+    btn.textContent = 'RUNNING';
+    btn.style.opacity = '0.5';
+    display.classList.add('running');
+    status.textContent = 'HOLD BOTH TARGETS';
+    status.className = 'timer-status show-wait';
+    dsiInterval = setInterval(() => {
+      dsiSeconds--;
+      updateTimerDisplay(dsiSeconds);
+      if (dsiSeconds <= 0) {
+        clearInterval(dsiInterval);
+        dsiRunning = false;
+        display.classList.remove('running');
+        display.classList.add('goals-met');
+        display.textContent = '0:00';
+        status.textContent = '\u200B';
+        status.className = 'timer-status';
+        document.getElementById('dsi-timer-section').classList.add('timer-met');
+        btn.textContent = 'DONE';
+        btn.style.background = '#1a7a1a';
+      }
+    }, 1000);
+  }
+
+  function manualStartTimer() { startTimer(); }
+
+  function resetTimer() {
+    if (dsiInterval) clearInterval(dsiInterval);
+    dsiRunning = false;
+    dsiSeconds = 180;
+    updateTimerDisplay(180);
+    const display = document.getElementById('dsi-timer');
+    const status = document.getElementById('dsi-timer-status');
+    const btn = document.getElementById('dsi-start-btn');
+    display.className = 'timer-display';
+    status.textContent = '\u200B';
+    status.className = 'timer-status';
+    document.getElementById('dsi-timer-section').classList.remove('timer-met');
+    btn.textContent = 'START';
+    btn.style.opacity = '1';
+    btn.style.background = 'var(--g-accent)';
+    document.getElementById('vs-spo2').classList.remove('met');
+    document.getElementById('vs-bp').classList.remove('met');
+  }
+
+  function vsCellTap(which) {
+    const cell = document.getElementById(which === 'spo2' ? 'vs-spo2' : 'vs-bp');
+    cell.classList.toggle('met');
+    const spo2On = document.getElementById('vs-spo2').classList.contains('met');
+    const bpOn = document.getElementById('vs-bp').classList.contains('met');
+    if (spo2On && bpOn && !dsiRunning && dsiSeconds === 180) {
+      startTimer();
+      scrollToDsiTimer();
+    }
+  }
+
+  // PEDS TIMER
+  let pedsInterval = null;
+  let pedsSeconds = 180;
+  let pedsRunning = false;
+
+  function updatePedsTimerDisplay(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    document.getElementById('peds-timer').textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+  }
+
+  function pedsStartTimer() {
+    if (pedsRunning) return;
+    pedsRunning = true;
+    const display = document.getElementById('peds-timer');
+    const status = document.getElementById('peds-timer-status');
+    const btn = document.getElementById('peds-start-btn');
+    btn.textContent = 'RUNNING';
+    btn.style.opacity = '0.5';
+    display.classList.add('running');
+    status.textContent = 'HOLD BOTH TARGETS';
+    status.className = 'timer-status show-wait';
+    pedsInterval = setInterval(() => {
+      pedsSeconds--;
+      updatePedsTimerDisplay(pedsSeconds);
+      if (pedsSeconds <= 0) {
+        clearInterval(pedsInterval);
+        pedsRunning = false;
+        display.classList.remove('running');
+        display.classList.add('goals-met');
+        display.textContent = '0:00';
+        status.textContent = '\u200B';
+        status.className = 'timer-status';
+        document.getElementById('peds-timer-section').classList.add('timer-met');
+        btn.textContent = 'DONE';
+        btn.style.background = '#1a7a1a';
+      }
+    }, 1000);
+  }
+
+  function pedsManualStart() { pedsStartTimer(); }
+
+  function pedsResetTimer() {
+    if (pedsInterval) clearInterval(pedsInterval);
+    pedsRunning = false;
+    pedsSeconds = 180;
+    updatePedsTimerDisplay(180);
+    const display = document.getElementById('peds-timer');
+    const status = document.getElementById('peds-timer-status');
+    const btn = document.getElementById('peds-start-btn');
+    if (display) display.className = 'timer-display';
+    if (status) { status.textContent = '\u200B'; status.className = 'timer-status'; }
+    const sec = document.getElementById('peds-timer-section');
+    if (sec) sec.classList.remove('timer-met');
+    if (btn) { btn.textContent = 'START'; btn.style.opacity = '1'; btn.style.background = 'var(--g-accent)'; }
+    const s1 = document.getElementById('peds-vs-spo2');
+    const s2 = document.getElementById('peds-vs-bp');
+    if (s1) s1.classList.remove('met');
+    if (s2) s2.classList.remove('met');
+  }
+
+  function pedsVsCellTap(which) {
+    const cell = document.getElementById(which === 'spo2' ? 'peds-vs-spo2' : 'peds-vs-bp');
+    cell.classList.toggle('met');
+    const spo2On = document.getElementById('peds-vs-spo2').classList.contains('met');
+    const bpOn = document.getElementById('peds-vs-bp').classList.contains('met');
+    if (spo2On && bpOn && !pedsRunning && pedsSeconds === 180) {
+      pedsStartTimer();
+      scrollToPedsTimer();
+    }
+  }
+
+  function round1(n) { return Math.round(n * 10) / 10; }
+
+  // CRASH
+  let weightUnit = 'kg';
+  let currentKg = null;
+
+  function setUnit(unit) {
+    weightUnit = unit;
+    document.getElementById('unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('unit-display').textContent = unit;
+    const btns = document.querySelectorAll('#preset-row .preset-btn');
+    const vals = unit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setPreset(vals[i]); });
+    // Keep whatever number was entered; recalc in the new unit
+    calcDoses();
+  }
+
+  function setPreset(val) {
+    document.getElementById('weight-input').value = val;
+    document.querySelectorAll('#preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcDoses();
+    scrollToCrashDoses();
+  }
+
+  function calcDoses() {
+    const raw = parseFloat(document.getElementById('weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('no-weight-msg').style.display = 'block';
+      document.getElementById('dose-content').style.display = 'none';
+      currentKg = null;
+      return;
+    }
+    currentKg = weightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('no-weight-msg').style.display = 'none';
+    document.getElementById('dose-content').style.display = 'block';
+    setDose('eto', currentKg * 0.3, 60, 2);
+    setDose('ket', currentKg * 1,   200, 50);
+    setDose('sux', currentKg * 1.5, 300, 20);
+    setDose('roc', currentKg * 1.5, 300, 10);
+  }
+
+  function setDose(id, rawMg, max, conc) {
+    const capped = Math.min(round1(rawMg), max);
+    const maxed = round1(rawMg) >= max;
+    const ml = round1(capped / conc);
+    document.getElementById('ml-' + id).textContent = ml;
+    document.getElementById('mg-' + id).textContent = capped + ' mg';
+    document.getElementById('max-' + id).style.display = maxed ? 'block' : 'none';
+  }
+
+  // DSI
+  let dsiWeightUnit = 'kg';
+  let dsiCurrentKg = null;
+
+  function setDsiUnit(unit) {
+    dsiWeightUnit = unit;
+    document.getElementById('dsi-unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('dsi-unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('dsi-unit-display').textContent = unit;
+    const btns = document.querySelectorAll('#dsi-preset-row .preset-btn');
+    const vals = unit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setDsiPreset(vals[i]); });
+    // Keep whatever number was entered; recalc in the new unit
+    calcDsiDoses();
+  }
+
+  function setDsiPreset(val) {
+    document.getElementById('dsi-weight-input').value = val;
+    document.querySelectorAll('#dsi-preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcDsiDoses();
+    scrollToDsiVS();
+  }
+
+  function calcDsiDoses() {
+    const raw = parseFloat(document.getElementById('dsi-weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('dsi-no-weight').style.display = 'block';
+      document.getElementById('dsi-doses').style.display = 'none';
+      dsiCurrentKg = null;
+      return;
+    }
+    dsiCurrentKg = dsiWeightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('dsi-no-weight').style.display = 'none';
+    document.getElementById('dsi-doses').style.display = 'block';
+    setDsiDose('ket', dsiCurrentKg * 1,   200, 50);
+    setDsiDose('eto', dsiCurrentKg * 0.3, 60, 2);
+    setDsiDose('roc', dsiCurrentKg * 1.5, 300, 10);
+    setDsiDose('sux', dsiCurrentKg * 1.5, 300, 20);
+  }
+
+  function setDsiDose(id, rawMg, max, conc) {
+    const capped = Math.min(round1(rawMg), max);
+    const maxed = round1(rawMg) >= max;
+    const ml = round1(capped / conc);
+    document.getElementById('dsi-ml-' + id).textContent = ml;
+    document.getElementById('dsi-mg-' + id).textContent = capped + ' mg';
+    document.getElementById('dsi-max-' + id).style.display = maxed ? 'block' : 'none';
+  }
+
+  // POST-INT
+  let postWeightUnit = 'kg';
+
+  function updatePostPresetLabels() {
+    const btns = document.querySelectorAll('#post-preset-row .preset-btn');
+    const vals = postWeightUnit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setPostPreset(vals[i]); });
+  }
+
+  function setPostUnit(unit) {
+    postWeightUnit = unit;
+    document.getElementById('post-unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('post-unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('post-unit-display').textContent = unit;
+    updatePostPresetLabels();
+    // Keep whatever number was entered; recalc in the new unit
+    calcPostDoses();
+  }
+
+  function setPostPreset(val) {
+    document.getElementById('post-weight-input').value = val;
+    document.querySelectorAll('#post-preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcPostDoses();
+  }
+
+  function calcPostDoses() {
+    const raw = parseFloat(document.getElementById('post-weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('post-no-weight').style.display = 'block';
+      document.getElementById('post-doses').style.display = 'none';
+      document.getElementById('post-midaz-wt').textContent = '0 mg';
+      return;
+    }
+    const kg = postWeightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('post-no-weight').style.display = 'none';
+    document.getElementById('post-doses').style.display = 'block';
+    const fenRaw = round1(kg * 1);
+    const fenCap = Math.min(fenRaw, 100);
+    document.getElementById('post-fen-ml').textContent = round1(fenCap / 50);
+    document.getElementById('post-fen-mcg').textContent = fenCap + ' mcg';
+    document.getElementById('post-fen-max').style.display = fenRaw >= 100 ? 'inline-block' : 'none';
+    const ketRaw = round1(kg * 1);
+    const ketCap = Math.min(ketRaw, 200);
+    document.getElementById('post-ket-ml').textContent = round1(ketCap / 50);
+    document.getElementById('post-ket-mg').textContent = ketCap + ' mg';
+    document.getElementById('post-ket-max').style.display = ketRaw >= 200 ? 'inline-block' : 'none';
+    document.getElementById('post-midaz-wt').textContent = round1(kg * 0.05) + ' mg';
+  }
+
+  // PEDS
+  let selectedPedsIndex = null;
+
+  function renderPedsAgeGrid() {
+    const grid = document.getElementById('peds-age-grid');
+    grid.innerHTML = '';
+    pedsData.forEach((p, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'peds-age-btn bro-' + p.broselow;
+      btn.textContent = p.age;
+      btn.onclick = () => selectPedsAge(i);
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectByLength() {
+    const inches = parseFloat(document.getElementById('peds-length-input').value);
+    if (!inches || inches <= 0) return;
+    let idx = null;
+    if (inches < pedsData[0].minIn) idx = 0;
+    else if (inches >= pedsData[pedsData.length - 1].maxIn) idx = pedsData.length - 1;
+    else {
+      for (let i = 0; i < pedsData.length; i++) {
+        if (inches >= pedsData[i].minIn && inches < pedsData[i].maxIn) { idx = i; break; }
+      }
+      if (idx === null) idx = pedsData.length - 1;
+    }
+    selectPedsAge(idx);
+  }
+
+  function selectPedsAge(i) {
+    selectedPedsIndex = i;
+    document.querySelectorAll('.peds-age-btn').forEach((b, idx) => {
+      b.classList.toggle('selected', idx === i);
+    });
+    const p = pedsData[i];
+    document.getElementById('peds-no-selection').style.display = 'none';
+    document.getElementById('peds-results').style.display = 'block';
+    document.getElementById('peds-age-display').textContent = p.age;
+    document.getElementById('peds-weight').textContent = p.kg + ' kg';
+    document.getElementById('peds-weight-lbs').textContent = Math.round(p.kg * 2.2046) + ' lbs';
+    document.getElementById('peds-ett').textContent = p.ett;
+    document.getElementById('peds-length').textContent = p.length;
+    document.getElementById('peds-igel').textContent = p.igel;
+    const stripe = document.getElementById('peds-broselow');
+    stripe.className = 'peds-broselow-stripe bro-' + p.broselow;
+    const kg = p.kg;
+    setPedsDose('p-ml-ket',     'p-mg-ket',     kg * 1,   50, 'mg');
+    setPedsDose('p-ml-eto',     'p-mg-eto',     kg * 0.3, 2,  'mg');
+    setPedsDose('p-ml-midaz',   'p-mg-midaz',   kg * 0.1, 1,  'mg');
+    setPedsDose('p-ml-roc',     'p-mg-roc',     kg * 1.5, 10, 'mg');
+    setPedsDose('p-ml-sux',     'p-mg-sux',     kg * 1.5, 20, 'mg');
+    setPedsDose('p-ml-fen',     'p-mg-fen',     kg * 1,   50, 'mcg');
+    setPedsDose('p-ml-ketpost', 'p-mg-ketpost', kg * 1,   50, 'mg');
+    setTimeout(() => {
+      document.querySelector('.peds-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  function setPedsDose(mlId, mgId, rawDose, conc, unit) {
+    const dose = round1(rawDose);
+    document.getElementById(mlId).textContent = round1(dose / conc);
+    document.getElementById(mgId).textContent = dose + ' ' + unit;
+  }
+
+  // SASQUATCH EASTER EGG
+  let logoTapCount = 0;
+  let logoTapTimer = null;
+
+  function logoTap() {
+    logoTapCount++;
+    if (logoTapTimer) clearTimeout(logoTapTimer);
+    logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 3000);
+    if (logoTapCount >= 5) {
+      logoTapCount = 0;
+      clearTimeout(logoTapTimer);
+      spawnSasquatch();
+    }
+  }
+
+  function spawnSasquatch() {
+    // Remove any existing instance
+    const existing = document.getElementById('squatch-wrap');
+    if (existing) existing.remove();
+    const hint = document.getElementById('squatch-hint');
+    if (hint) hint.remove();
+
+    // Hint text
+    const hintEl = document.createElement('div');
+    hintEl.id = 'squatch-hint';
+    hintEl.className = 'squatch-tap-hint';
+    hintEl.textContent = '🌲 Sighting reported in Clark County 🌲';
+    document.body.appendChild(hintEl);
+    setTimeout(() => { if (hintEl.parentNode) hintEl.remove(); }, 3000);
+
+    // Sasquatch SVG silhouette
+    const wrap = document.createElement('div');
+    wrap.id = 'squatch-wrap';
+    wrap.className = 'squatch-container';
+    wrap.innerHTML = `
+      <svg class="squatch-svg" viewBox="0 0 150 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Facing right, classic Patterson mid-stride profile -->
+        <!-- BACK LEG (drawn first, behind body) -->
+        <g class="sq-leg-back">
+          <path d="M 68 120 Q 60 150 55 178" stroke="#15150a" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <!-- back foot -->
+          <path d="M 44 184 Q 44 176 56 176 L 70 178 Q 74 184 68 188 L 48 188 Q 43 188 44 184 Z" fill="#15150a"/>
+        </g>
+        <!-- BACK ARM (behind torso) -->
+        <g class="sq-arm-back">
+          <path d="M 60 86 Q 48 112 50 138" stroke="#15150a" stroke-width="17" fill="none" stroke-linecap="round"/>
+          <ellipse cx="50" cy="140" rx="9" ry="11" fill="#15150a"/>
+        </g>
+
+        <!-- TORSO - hunched, broad shoulders tapering down -->
+        <path d="M 52 70 Q 48 60 58 54 L 92 54 Q 104 60 100 74
+                 Q 104 100 92 128 Q 80 140 64 134 Q 52 120 50 95 Z" fill="#1c1c0d"/>
+        <!-- chest/belly shading -->
+        <path d="M 70 72 Q 64 100 70 130 Q 80 132 86 124 Q 92 100 88 74 Z" fill="#22220f" opacity="0.6"/>
+
+        <!-- HEAD - sloped forehead, no neck, sagittal crest peak -->
+        <path d="M 88 30 Q 102 32 104 46 Q 106 58 96 64 L 78 64 Q 70 58 72 44 Q 74 32 88 30 Z" fill="#1c1c0d"/>
+        <!-- brow ridge -->
+        <path d="M 92 44 Q 104 44 104 50 Q 100 54 92 52 Z" fill="#15150a"/>
+        <!-- eye glow -->
+        <circle cx="96" cy="47" r="2.6" fill="#c8a020" opacity="0.95"/>
+        <circle cx="96.5" cy="46.3" r="1" fill="#fff" opacity="0.6"/>
+        <!-- brow/jaw line -->
+        <path d="M 78 60 Q 88 64 98 60" stroke="#15150a" stroke-width="2.5" fill="none" opacity="0.7"/>
+
+        <!-- FRONT LEG -->
+        <g class="sq-leg-front">
+          <path d="M 78 120 Q 86 150 92 178" stroke="#1f1f0e" stroke-width="23" fill="none" stroke-linecap="round"/>
+          <!-- front foot (big, flat) -->
+          <path d="M 80 184 Q 80 175 94 175 L 112 178 Q 117 184 110 189 L 86 189 Q 79 189 80 184 Z" fill="#1f1f0e"/>
+        </g>
+        <!-- FRONT ARM (in front of torso, long, swinging) -->
+        <g class="sq-arm-front">
+          <path d="M 90 86 Q 104 112 100 142" stroke="#1f1f0e" stroke-width="18" fill="none" stroke-linecap="round"/>
+          <ellipse cx="100" cy="144" rx="10" ry="12" fill="#1f1f0e"/>
+        </g>
+
+        <!-- fur texture wisps on torso -->
+        <path d="M 58 78 Q 54 96 56 116" stroke="#2c2c16" stroke-width="2" fill="none" opacity="0.45"/>
+        <path d="M 72 74 Q 70 98 74 124" stroke="#2c2c16" stroke-width="2" fill="none" opacity="0.4"/>
+        <path d="M 88 78 Q 92 96 88 118" stroke="#2c2c16" stroke-width="2" fill="none" opacity="0.45"/>
+        <!-- shaggy outline ticks along the back -->
+        <path d="M 52 70 l -4 -3 M 50 84 l -5 -1 M 50 100 l -5 0 M 52 116 l -5 2" stroke="#1c1c0d" stroke-width="3" stroke-linecap="round"/>
+      </svg>`;
+    document.body.appendChild(wrap);
+    // Clean up after the 3-second walk completes
+    setTimeout(() => { if (wrap.parentNode) wrap.remove(); }, 3200);
+  }
+
+  // DISCLAIMER + 1-HOUR SESSION RESET
+  // After 1 hour from accepting, the whole app resets to the warning page
+  // and clears the meds/timers from the prior call.
+  const SESSION_MS = 60 * 60 * 1000; // 1 hour
+
+  function acceptDisclaimer() {
+    try {
+      localStorage.setItem('disclaimerAccepted', '2026.06');
+      localStorage.setItem('sessionStart', String(Date.now()));
+    } catch(e) {}
+    document.getElementById('disclaimer-modal').style.display = 'none';
+  }
+
+  function sessionExpired() {
+    const start = parseInt(localStorage.getItem('sessionStart') || '0', 10);
+    if (!start) return true;
+    return (Date.now() - start) > SESSION_MS;
+  }
+
+  function checkSession() {
+    if (localStorage.getItem('disclaimerAccepted') !== '2026.06' || sessionExpired()) {
+      // Fresh start: clear prior call data + show warning page
+      try { localStorage.setItem('medsGiven', '[]'); } catch(e) {}
+      medsGiven = [];
+      clearAllRedose();
+      document.querySelectorAll('.big-card.given, .post-drug-card.given, .single-big-card.given').forEach(c => c.classList.remove('given'));
+      document.querySelectorAll('.given-stamp, .post-given-stamp').forEach(s => s.style.display = 'none');
+      updateMedsCount();
+      showSplash();
+      document.getElementById('disclaimer-modal').style.display = 'flex';
+    }
+  }
+
+  // Check on load
+  checkSession();
+  // Check again whenever the app is brought back to the foreground (iOS PWA)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkSession();
+  });
+  // And every minute while open
+  setInterval(checkSession, 60 * 1000);
+
+  // INIT
+  renderPedsAgeGrid();
+  restoreGivenStates();
+  // Default all weight sections to kg (populates presets, labels, active state)
+  setDsiUnit('kg');
+  setUnit('kg');
+  setPostUnit('kg');
+</script>
+</body>
+</html>

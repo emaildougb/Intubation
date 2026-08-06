@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>NCEMS Intubation Guide v1.3</title>
+<style>
+  :root {
+    --g-deep: #1C3A1C;
+    --g-mid: #2E6B2E;
+    --g-accent: #3A8A3A;
+    --g-pale: #EBF5EB;
+    --warn: #B87E0A;
+    --bad: #C13E3E;
+    --bad-deep: #8B1C1C;
+    --bad-light: #FDEAEA;
+    --peds-deep: #1C3A55;
+    --peds-mid: #2E5B85;
+    --peds-pale: #E8F0F8;
+    --white: #FFFFFF;
+    --text: #1A1A1A;
+    --text-muted: #555;
+    --border: #C5DFC5;
+    --surface: #F5FAF5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--g-deep);
+    color: var(--text);
+    min-height: 100vh;
+    overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ===== SPLASH ===== */
+  #splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 20px 40px;
+    background: linear-gradient(175deg, #0e1e0e 0%, #1C3A1C 40%, #2E6B2E 100%);
+  }
+
+  .splash-logo {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--g-accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  .splash-title {
+    font-size: clamp(28px, 7vw, 44px);
+    font-weight: 700;
+    color: var(--white);
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .splash-sub {
+    font-size: 13px;
+    color: #9fcf9f;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .splash-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .splash-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
+    min-height: 92px;
+  }
+  .splash-btn:active { transform: scale(0.97); }
+
+  .splash-btn.dsi {
+    background: linear-gradient(135deg, #2E6B2E 0%, #3A8A3A 100%);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .splash-btn.crash {
+    background: linear-gradient(135deg, #8B1C1C 0%, #C13E3E 100%);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .splash-btn.post {
+    background: linear-gradient(135deg, #1C3A1C 0%, #2E6B2E 100%);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .splash-btn.peds {
+    background: linear-gradient(135deg, #1C3A55 0%, #4A7CB0 100%);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .splash-btn-title {
+    font-size: clamp(26px, 7vw, 34px);
+    font-weight: 800;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .splash-version {
+    margin-top: 28px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+
+  /* ===== SHARED VIEW SHELL ===== */
+  .view { display: none; min-height: 100vh; flex-direction: column; }
+  .view.active { display: flex; }
+
+  .view-header {
+    background: var(--g-deep);
+    color: white;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.2); }
+
+  .view-header-text { flex: 1; }
+  .view-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .view-header.crash-header { background: var(--bad-deep); }
+  .view-header.post-header { background: var(--g-deep); }
+  .view-header.peds-header { background: var(--peds-deep); }
+
+  .view-body { flex: 1; background: var(--surface); padding: 0 0 40px 0; overflow-y: auto; }
+  .view-body.peds-body { background: #f4f8fc; }
+
+  /* ===== WEIGHT INPUT ===== */
+  .weight-section {
+    margin: 16px 16px 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .weight-label {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .weight-toggle-row {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .weight-unit-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #f5f5f5;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .weight-unit-btn.active { background: var(--g-deep); color: white; }
+
+  .weight-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .weight-input {
+    flex: 1;
+    padding: 14px;
+    font-size: 32px;
+    font-weight: 700;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    color: var(--g-deep);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .weight-input:focus { border-color: var(--g-accent); }
+  .weight-unit-display {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+    width: 32px;
+  }
+
+  .weight-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .preset-btn {
+    padding: 10px 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--g-pale);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    color: var(--g-deep);
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.1s;
+  }
+  .preset-btn:active, .preset-btn.selected { background: var(--g-deep); color: white; border-color: var(--g-deep); }
+
+  /* ===== V/S TARGETS + TIMER ===== */
+  .vs-banner {
+    margin: 16px 16px 0;
+    background: linear-gradient(135deg, #1C3A1C 0%, #2E6B2E 100%);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .vs-banner-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .vs-cell {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .vs-value {
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #8ee18e;
+    line-height: 1.1;
+  }
+  .vs-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+
+  .timer-inline {
+    margin: 8px 16px 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .timer-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .timer-display {
+    font-family: 'Courier New', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--g-deep);
+    letter-spacing: 2px;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .timer-display.running { color: var(--g-accent); }
+  .timer-display.goals-met { color: #1a7a1a; }
+
+  .timer-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+  .timer-btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
+  }
+  .timer-btn:active { opacity: 0.8; }
+  .timer-btn.start { background: var(--g-accent); color: white; }
+  .timer-btn.reset { background: #eee; color: var(--text); }
+
+  .timer-status {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    min-height: 18px;
+    color: transparent;
+    transition: color 0.3s;
+  }
+  .timer-status.show-go { color: #1a7a1a; }
+  .timer-status.show-wait { color: var(--warn); }
+
+  /* ===== ACCORDION ===== */
+  .accordion {
+    margin: 12px 16px 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .acc-header {
+    padding: 16px;
+    background: var(--g-deep);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .acc-header:active { background: #0e1e0e; }
+
+  .acc-title {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .acc-icon-emoji { font-size: 16px; }
+
+  .acc-chevron {
+    font-size: 20px;
+    color: rgba(255,255,255,0.6);
+    transition: transform 0.2s;
+  }
+  .accordion.open .acc-chevron { transform: rotate(180deg); }
+
+  .acc-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+  .accordion.open .acc-content { max-height: 4000px; transition: max-height 0.5s ease-in; }
+  .acc-inner { padding: 4px 0 0; }
+
+  .accordion.warn-acc .acc-header { background: var(--warn); }
+  .accordion.warn-acc .acc-header:active { background: #946408; }
+  .accordion.mid-acc .acc-header { background: var(--g-mid); }
+
+  /* Checklist items inside accordions */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 14px;
+    border-bottom: 1px solid #f0f5f0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:active { background: var(--g-pale); }
+  .check-item.checked { background: #f0faf0; }
+
+  .check-box {
+    width: 26px;
+    height: 26px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    background: white;
+  }
+  .check-item.checked .check-box {
+    background: var(--g-accent);
+    border-color: var(--g-accent);
+  }
+  .check-box::after {
+    content: '';
+    display: none;
+    width: 6px;
+    height: 10px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .check-item.checked .check-box::after { display: block; }
+
+  .check-text { flex: 1; font-size: 15px; line-height: 1.4; color: var(--text); padding-top: 2px; }
+  .check-text strong { color: var(--g-deep); }
+
+  /* ===== LEMON ===== */
+  .lemon-table { width: 100%; border-collapse: collapse; }
+  .lemon-row {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .lemon-row:last-of-type { border-bottom: none; }
+  .lemon-letter {
+    background: var(--bad-deep);
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lemon-row:nth-child(2) .lemon-letter { background: #a82626; }
+  .lemon-row:nth-child(3) .lemon-letter { background: var(--bad); }
+  .lemon-row:nth-child(4) .lemon-letter { background: #d04848; }
+  .lemon-row:nth-child(5) .lemon-letter { background: #e15555; }
+
+  .lemon-body { padding: 12px 14px; }
+  .lemon-word {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--bad-deep);
+    margin-bottom: 4px;
+  }
+  .lemon-detail { font-size: 14px; line-height: 1.4; color: var(--text); }
+  .lemon-detail ul { list-style: none; padding-left: 0; margin-top: 4px; }
+  .lemon-detail li {
+    padding: 2px 0 2px 14px;
+    position: relative;
+    font-size: 13px;
+  }
+  .lemon-detail li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--bad);
+  }
+
+  .mallampati {
+    padding: 14px;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+  }
+  .mallampati-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .mallampati-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .mp-class {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .mp-num {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--g-deep);
+    margin-bottom: 4px;
+  }
+  .mp-visual {
+    height: 38px;
+    background: #f5e6e6;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mp-visual .arch {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #a04040;
+    border-radius: 50% 50% 0 0;
+  }
+  .mp-visual.c1 .arch { width: 70%; height: 70%; }
+  .mp-visual.c2 .arch { width: 55%; height: 55%; }
+  .mp-visual.c3 .arch { width: 40%; height: 38%; }
+  .mp-visual.c4 .arch { width: 28%; height: 22%; }
+  .mp-desc { font-size: 9px; color: var(--text-muted); line-height: 1.2; }
+
+  /* ===== CONSIDERATIONS ===== */
+  .consid-block { padding: 12px 14px; }
+  .consid-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--g-deep);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .consid-title.alt-title { color: var(--warn); margin-top: 12px; }
+  .consid-list { list-style: none; }
+  .consid-list li {
+    padding: 4px 0 4px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+  }
+  .consid-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--g-accent);
+    font-size: 11px;
+    top: 6px;
+  }
+  .consid-title.alt-title + .consid-list li::before { color: var(--warn); }
+  .consid-list li strong { color: var(--g-deep); }
+
+  /* ===== NAV BUTTON ===== */
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 32px);
+    margin: 16px 16px 0;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, var(--g-deep) 0%, var(--g-mid) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.1s;
+  }
+  .nav-btn:active { transform: scale(0.98); }
+
+  .nav-btn-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .nav-btn-arrow {
+    font-size: 28px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ===== DOSE GRID ===== */
+  .dose-grid-wrap {
+    margin: 16px 16px 0;
+  }
+  .dose-grid-title {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding: 0 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .dose-grid-title-right {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+  }
+
+  .dose-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .dose-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .dose-card-head {
+    background: var(--bad-deep);
+    color: white;
+    padding: 7px 10px;
+    text-align: center;
+  }
+  /* CRASH (red) variants */
+  .dose-card-head.crash-induction { background: var(--bad-deep); }
+  .dose-card-head.crash-paralytic { background: #5a1a1a; }
+  /* DSI (green) variants */
+  .dose-card-head.dsi-induction { background: var(--g-deep); }
+  .dose-card-head.dsi-paralytic { background: var(--g-mid); }
+  /* PEDS (blue) variants */
+  .dose-card-head.peds-induction { background: var(--peds-deep); }
+  .dose-card-head.peds-paralytic { background: #14304e; }
+  .dose-card-head.peds-post { background: var(--peds-mid); }
+
+  .dose-drug-name {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .dose-drug-class {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .dose-card-body {
+    padding: 12px 10px 10px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .dose-ml-big {
+    font-family: 'Courier New', monospace;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+    color: var(--bad);
+  }
+  .dose-ml-big.dsi-color { color: var(--g-mid); }
+  .dose-ml-big.peds-color { color: var(--peds-mid); }
+  .dose-ml-unit {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .dose-mg-line {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+  .dose-card-foot {
+    padding: 7px 10px;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .dose-max-tag {
+    display: inline-block;
+    background: var(--warn);
+    color: white;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+
+  .no-weight-msg {
+    margin: 16px 16px 0;
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--text-muted);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    background: white;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+  }
+
+  /* ===== POST-INTUBATION HUGE NUMBERS ===== */
+  .post-drug-card {
+    margin: 16px 16px 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .post-drug-head {
+    background: var(--g-mid);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .post-drug-head.ket-head { background: var(--g-deep); }
+  .post-drug-head.midaz-head { background: var(--warn); }
+
+  .post-drug-name {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .post-drug-role {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .post-drug-body {
+    padding: 24px 16px;
+    text-align: center;
+  }
+  .post-ml-huge {
+    font-family: 'Courier New', monospace;
+    font-size: 88px;
+    font-weight: 700;
+    color: var(--g-mid);
+    line-height: 0.95;
+    letter-spacing: -3px;
+  }
+  .post-ml-huge.ket-color { color: var(--g-deep); }
+  .post-ml-huge.midaz-color { color: var(--warn); }
+  .post-ml-unit-big {
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 4px;
+    margin-top: 4px;
+  }
+  .post-mg-line {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 14px;
+    letter-spacing: 1px;
+  }
+  .post-mg-line .post-max-tag {
+    display: inline-block;
+    background: var(--warn);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .post-drug-foot {
+    padding: 10px 14px;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+  }
+  .post-drug-foot strong { color: var(--g-deep); }
+
+  .midaz-conc-note {
+    background: #fef6e4;
+    border: 1px solid #f0c060;
+    color: #7a5000;
+    padding: 8px 12px;
+    margin: 8px 12px 0;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+  }
+  .midaz-conc-note strong { color: var(--warn); }
+
+  .cric-banner {
+    margin: 16px 16px 0;
+    background: var(--bad-light);
+    border: 2px solid var(--bad);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .cric-banner-title {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bad);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .cric-banner-text { font-size: 13px; color: #7a0000; line-height: 1.5; }
+
+  /* RASS table */
+  .rass-wrap { padding: 12px 14px; }
+  .rass-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rass-table th {
+    background: var(--g-deep);
+    color: white;
+    padding: 7px 8px;
+    text-align: left;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .rass-table td { padding: 7px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .rass-table tr:last-child td { border-bottom: none; }
+  .rass-score {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    width: 32px;
+  }
+  .rass-pos { color: var(--bad); }
+  .rass-zero { color: var(--g-mid); }
+  .rass-neg { color: var(--g-accent); }
+  .rass-target { background: #e8f5e8 !important; }
+  .rass-target td:first-child::after { content: ' ★'; font-size: 9px; color: var(--g-accent); }
+
+  .warn-box {
+    margin: 12px 16px 0;
+    background: #fff8e8;
+    border: 1px solid #f0c060;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #7a5000;
+    font-family: 'Courier New', monospace;
+    line-height: 1.5;
+  }
+  .warn-box strong { color: var(--warn); }
+
+  /* ===== PEDS ===== */
+  .peds-intro {
+    margin: 16px 16px 0;
+    background: white;
+    border: 1px solid #c5d9eb;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .peds-intro-label {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .peds-age-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .peds-age-btn {
+    padding: 12px 4px;
+    background: var(--peds-pale);
+    border: 1px solid #c5d9eb;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--peds-deep);
+    cursor: pointer;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.1s;
+    letter-spacing: 0.5px;
+  }
+  .peds-age-btn:active { background: var(--peds-mid); color: white; }
+  .peds-age-btn.selected { background: var(--peds-deep); color: white; border-color: var(--peds-deep); }
+
+  .peds-summary {
+    margin: 16px 16px 0;
+    background: linear-gradient(135deg, var(--peds-deep) 0%, var(--peds-mid) 100%);
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+  }
+  .peds-summary-age {
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .peds-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+  .peds-stat {
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .peds-stat-label {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .peds-stat-value {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #9bc2e8;
+    margin-top: 3px;
+    line-height: 1.1;
+  }
+  .peds-stat-sub {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 1px;
+  }
+
+  .peds-single-card {
+    margin-top: 8px;
+  }
+  .peds-single-card .dose-card-body {
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .peds-single-card .dose-ml-big { font-size: 38px; }
+  .peds-single-card .dose-mg-line { margin-top: 0; }
+
+  .spacer-lg { height: 28px; }
+
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH ============ -->
+<div id="splash">
+  <div class="splash-logo">NCEMS · Clark County</div>
+  <div class="splash-title">Intubation<br>Guide</div>
+  <div class="splash-sub">2026 Protocols · v1.3</div>
+  <div class="splash-cards">
+    <button class="splash-btn dsi" onclick="showView('dsi')">
+      <div class="splash-btn-title">DSI</div>
+    </button>
+    <button class="splash-btn crash" onclick="showView('crash')">
+      <div class="splash-btn-title">Adult Crash Airway</div>
+    </button>
+    <button class="splash-btn peds" onclick="showView('peds')">
+      <div class="splash-btn-title">Peds RSI</div>
+    </button>
+    <button class="splash-btn post" onclick="showView('post')">
+      <div class="splash-btn-title">Post-Intubation</div>
+    </button>
+  </div>
+  <div class="splash-version">v1.3 · 2026 Clark County Protocols</div>
+</div>
+
+<!-- ============ DSI VIEW ============ -->
+<div id="view-dsi" class="view">
+  <div class="view-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text">
+      <div class="view-header-title">DSI</div>
+    </div>
+  </div>
+  <div class="view-body">
+
+    <!-- 1. WEIGHT -->
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn active" id="dsi-unit-lbs" onclick="setDsiUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn" id="dsi-unit-kg" onclick="setDsiUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="number" class="weight-input" id="dsi-weight-input" placeholder="—" inputmode="numeric" oninput="calcDsiDoses()">
+        <div class="weight-unit-display" id="dsi-unit-display">lbs</div>
+      </div>
+      <div class="weight-presets" id="dsi-preset-row">
+        <button class="preset-btn" onclick="setDsiPreset(110)">110</button>
+        <button class="preset-btn" onclick="setDsiPreset(154)">154</button>
+        <button class="preset-btn" onclick="setDsiPreset(176)">176</button>
+        <button class="preset-btn" onclick="setDsiPreset(220)">220</button>
+        <button class="preset-btn" onclick="setDsiPreset(242)">242</button>
+        <button class="preset-btn" onclick="setDsiPreset(275)">275</button>
+        <button class="preset-btn" onclick="setDsiPreset(308)">308</button>
+        <button class="preset-btn" onclick="setDsiPreset(330)">330</button>
+      </div>
+    </div>
+
+    <!-- 2. V/S TARGETS -->
+    <div class="vs-banner">
+      <div class="vs-banner-title">Hit BOTH × 3 min before pushing</div>
+      <div class="vs-grid">
+        <div class="vs-cell">
+          <div class="vs-value">SpO₂ ≥94%</div>
+          <div class="vs-label">CPAP / BVM + PEEP</div>
+        </div>
+        <div class="vs-cell">
+          <div class="vs-value">SBP &gt;90<br>MAP &gt;65</div>
+          <div class="vs-label">Fluids / Low-dose Epi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. TIMER -->
+    <div class="timer-inline">
+      <div class="timer-label">3-Minute Timer</div>
+      <div class="timer-display" id="dsi-timer">3:00</div>
+      <div class="timer-btn-row">
+        <button class="timer-btn start" id="dsi-start-btn" onclick="startTimer()">START</button>
+        <button class="timer-btn reset" onclick="resetTimer()">RESET</button>
+      </div>
+      <div class="timer-status" id="dsi-timer-status">&#8203;</div>
+    </div>
+
+    <!-- 4. CALCULATED DRUG CARDS -->
+    <div id="dsi-no-weight" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="dsi-doses" style="display:none;">
+      <div class="dose-grid-wrap">
+        <div class="dose-grid-title">
+          <span>Induction</span>
+          <span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head dsi-induction">
+              <div class="dose-drug-name">Ketamine</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big dsi-color" id="dsi-ml-ket">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="dsi-mg-ket">— mg</div>
+              <div id="dsi-max-ket" style="display:none;"><span class="dose-max-tag">MAX 200 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head dsi-induction">
+              <div class="dose-drug-name">Etomidate</div>
+              <div class="dose-drug-class">If no Ket</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big dsi-color" id="dsi-ml-eto">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="dsi-mg-eto">— mg</div>
+              <div id="dsi-max-eto" style="display:none;"><span class="dose-max-tag">MAX 60 mg</span></div>
+            </div>
+            <div class="dose-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+        </div>
+
+        <div class="dose-grid-title" style="margin-top:14px;">
+          <span>Paralytic</span>
+          <span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head dsi-paralytic">
+              <div class="dose-drug-name">Rocuronium</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big dsi-color" id="dsi-ml-roc">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="dsi-mg-roc">— mg</div>
+              <div id="dsi-max-roc" style="display:none;"><span class="dose-max-tag">MAX 300 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head dsi-paralytic">
+              <div class="dose-drug-name">Succinylcholine</div>
+              <div class="dose-drug-class">Neuro exam</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big dsi-color" id="dsi-ml-sux">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="dsi-mg-sux">— mg</div>
+              <div id="dsi-max-sux" style="display:none;"><span class="dose-max-tag">MAX 300 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. ACCORDIONS -->
+    <div class="accordion" id="acc-equip">
+      <div class="acc-header" onclick="toggleAcc('acc-equip')">
+        <div class="acc-title"><span class="acc-icon-emoji">🎒</span> Equipment</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content">
+        <div class="acc-inner">
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Monitor:</strong> SpO₂, EtCO₂, EKG, BP, HR</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Suction</strong> set up + tested</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Laryngoscope</strong> — VL preferred</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>ET tubes</strong> + size smaller</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Bougie / S-Guide</strong></div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>iGel</strong> backup</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Inline EtCO₂</strong> + securing device</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>BVM + PEEP 5</strong> · CPAP</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>2 O₂ tanks</strong> · NC at 15 LPM</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Cric kit</strong> at bedside</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>IV/IO</strong> secured + flushes</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Low-dose Epi</strong> drawn up</div></div>
+          <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text"><strong>Position:</strong> ear-to-sternal · HOB 15°</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion warn-acc" id="acc-lemon">
+      <div class="acc-header" onclick="toggleAcc('acc-lemon')">
+        <div class="acc-title"><span class="acc-icon-emoji">🍋</span> LEMON Assessment</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content">
+        <div class="acc-inner">
+          <div class="lemon-table">
+            <div class="lemon-row">
+              <div class="lemon-letter">L</div>
+              <div class="lemon-body">
+                <div class="lemon-word">Look Externally</div>
+                <div class="lemon-detail">
+                  <ul>
+                    <li>Facial trauma</li>
+                    <li>Large incisors</li>
+                    <li>Beard / moustache</li>
+                    <li>Large tongue</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="lemon-row">
+              <div class="lemon-letter">E</div>
+              <div class="lemon-body">
+                <div class="lemon-word">3-3-2 Rule</div>
+                <div class="lemon-detail">
+                  <ul>
+                    <li>Incisor distance: <strong>3 FB</strong></li>
+                    <li>Hyoid–mental: <strong>3 FB</strong></li>
+                    <li>Thyroid–mouth: <strong>2 FB</strong></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="lemon-row">
+              <div class="lemon-letter">M</div>
+              <div class="lemon-body">
+                <div class="lemon-word">Mallampati ≥ 3</div>
+                <div class="lemon-detail">Soft / hard palate only visible → difficult.</div>
+              </div>
+            </div>
+            <div class="lemon-row">
+              <div class="lemon-letter">O</div>
+              <div class="lemon-body">
+                <div class="lemon-word">Obstruction</div>
+                <div class="lemon-detail">Epiglottitis · peritonsillar abscess · trauma</div>
+              </div>
+            </div>
+            <div class="lemon-row">
+              <div class="lemon-letter">N</div>
+              <div class="lemon-body">
+                <div class="lemon-word">Neck Mobility</div>
+                <div class="lemon-detail">C-spine · arthritis · immobilization</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mallampati">
+            <div class="mallampati-title">Mallampati Classification</div>
+            <div class="mallampati-grid">
+              <div class="mp-class">
+                <div class="mp-num">I</div>
+                <div class="mp-visual c1"><div class="arch"></div></div>
+                <div class="mp-desc">Soft palate, uvula, pillars</div>
+              </div>
+              <div class="mp-class">
+                <div class="mp-num">II</div>
+                <div class="mp-visual c2"><div class="arch"></div></div>
+                <div class="mp-desc">Soft palate, base of uvula</div>
+              </div>
+              <div class="mp-class">
+                <div class="mp-num">III</div>
+                <div class="mp-visual c3"><div class="arch"></div></div>
+                <div class="mp-desc">Soft palate only</div>
+              </div>
+              <div class="mp-class">
+                <div class="mp-num">IV</div>
+                <div class="mp-visual c4"><div class="arch"></div></div>
+                <div class="mp-desc">Hard palate only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion mid-acc" id="acc-considerations">
+      <div class="acc-header" onclick="toggleAcc('acc-considerations')">
+        <div class="acc-title"><span class="acc-icon-emoji">⚠️</span> Key Considerations</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content">
+        <div class="acc-inner">
+          <div class="consid-block">
+            <ul class="consid-list">
+              <li><strong>Can't reach SpO₂ 94%</strong> → BVM + PEEP 10 · NPA/OPA or iGel</li>
+              <li><strong>Still can't reach 94%</strong> → continue ventilation</li>
+              <li><strong>Can't intubate</strong> → iGel + ventilate</li>
+              <li><strong>Cric</strong> if oxygenation impossible · needle jet if peds &lt;12</li>
+              <li><strong>2 failed attempts</strong> → change operator OR iGel</li>
+              <li><strong>Can't establish airway</strong> → nearest hospital</li>
+            </ul>
+
+            <div class="consid-title alt-title">Other</div>
+            <ul class="consid-list">
+              <li><strong>Sux preferred</strong> for neuro exam (seizure / head injury / stroke)</li>
+              <li><strong>Sux CI:</strong> hyperK+ · renal failure · MG · paralysis hx · burns/crush &gt;48h · rhabdo</li>
+              <li><strong>Etomidate not</strong> for post-intubation sedation in DSI</li>
+              <li><strong>Paralytics</strong> don't sedate — always pair with analgesia + sedation</li>
+              <li><strong>Bradycardia:</strong> stop, BVM 100% O₂ PEEP 15 · Atropine PRN</li>
+              <li><strong>C-spine:</strong> manual stabilization · collar open during laryngoscopy</li>
+              <li><strong>Head injury:</strong> SBP ≥110 (MAP &gt;80) · EtCO₂ 35</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. POST-INTUBATION BUTTON -->
+    <button class="nav-btn" onclick="goToPost('dsi')">
+      <div class="nav-btn-title">Post-Intubation →</div>
+      <span class="nav-btn-arrow">›</span>
+    </button>
+
+    <!-- 7. FAILURE PATH -->
+    <div class="cric-banner">
+      <div class="cric-banner-title">⚠ Failure Path</div>
+      <div class="cric-banner-text">Att. 1 fails → change operator · Att. 2 fails → iGel<br>Can't ox/vent → <strong>Cricothyrotomy</strong> (needle jet if peds &lt;12)</div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- ============ ADULT CRASH ============ -->
+<div id="view-crash" class="view">
+  <div class="view-header crash-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text">
+      <div class="view-header-title">Adult Crash Airway</div>
+    </div>
+  </div>
+  <div class="view-body">
+
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn active" id="unit-lbs" onclick="setUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn" id="unit-kg" onclick="setUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="number" class="weight-input" id="weight-input" placeholder="—" inputmode="numeric" oninput="calcDoses()">
+        <div class="weight-unit-display" id="unit-display">lbs</div>
+      </div>
+      <div class="weight-presets" id="preset-row">
+        <button class="preset-btn" onclick="setPreset(110)">110</button>
+        <button class="preset-btn" onclick="setPreset(154)">154</button>
+        <button class="preset-btn" onclick="setPreset(176)">176</button>
+        <button class="preset-btn" onclick="setPreset(220)">220</button>
+        <button class="preset-btn" onclick="setPreset(242)">242</button>
+        <button class="preset-btn" onclick="setPreset(275)">275</button>
+        <button class="preset-btn" onclick="setPreset(308)">308</button>
+        <button class="preset-btn" onclick="setPreset(330)">330</button>
+      </div>
+    </div>
+
+    <div id="no-weight-msg" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="dose-content" style="display:none;">
+      <div class="dose-grid-wrap">
+        <div class="dose-grid-title">
+          <span>Induction</span>
+          <span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head crash-induction">
+              <div class="dose-drug-name">Etomidate</div>
+              <div class="dose-drug-class">If no Ket</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big" id="ml-eto">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="mg-eto">— mg</div>
+              <div id="max-eto" style="display:none;"><span class="dose-max-tag">MAX 60 mg</span></div>
+            </div>
+            <div class="dose-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head crash-induction">
+              <div class="dose-drug-name">Ketamine</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big" id="ml-ket">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="mg-ket">— mg</div>
+              <div id="max-ket" style="display:none;"><span class="dose-max-tag">MAX 200 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+        </div>
+
+        <div class="dose-grid-title" style="margin-top:14px;">
+          <span>Paralytic</span>
+          <span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head crash-paralytic">
+              <div class="dose-drug-name">Succinylcholine</div>
+              <div class="dose-drug-class">Neuro exam</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big" id="ml-sux">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="mg-sux">— mg</div>
+              <div id="max-sux" style="display:none;"><span class="dose-max-tag">MAX 300 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head crash-paralytic">
+              <div class="dose-drug-name">Rocuronium</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big" id="ml-roc">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="mg-roc">— mg</div>
+              <div id="max-roc" style="display:none;"><span class="dose-max-tag">MAX 300 mg</span></div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <strong>Shock / MAP &lt;65:</strong> half-dose induction<br>
+        <strong>Sux CI:</strong> hyperK+ · renal failure · neuromuscular hx · burns/crush &gt;48h · rhabdo<br>
+        <strong>Roc:</strong> avoid stroke/neurotrauma if transport &lt;45 min
+      </div>
+
+      <button class="nav-btn" onclick="goToPost('crash')">
+        <div class="nav-btn-title">Post-Intubation →</div>
+        <span class="nav-btn-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="cric-banner">
+      <div class="cric-banner-title">⚠ Failure Path</div>
+      <div class="cric-banner-text">SpO₂ &lt;88% + can't ox/vent → <strong>Cricothyrotomy</strong><br>Peds &lt;12 → <strong>Needle jet</strong></div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- ============ PEDS ============ -->
+<div id="view-peds" class="view">
+  <div class="view-header peds-header">
+    <button class="back-btn" onclick="showSplash()">‹</button>
+    <div class="view-header-text">
+      <div class="view-header-title">Peds RSI</div>
+    </div>
+  </div>
+  <div class="view-body peds-body">
+
+    <div class="peds-intro">
+      <div class="peds-intro-label">Select Age</div>
+      <div class="peds-age-grid" id="peds-age-grid"></div>
+    </div>
+
+    <div id="peds-no-selection" class="no-weight-msg">Tap an age to display ETT, iGel + doses</div>
+
+    <div id="peds-results" style="display:none;">
+      <div class="peds-summary">
+        <div class="peds-summary-age" id="peds-age-display">—</div>
+        <div class="peds-summary-grid">
+          <div class="peds-stat">
+            <div class="peds-stat-label">Weight</div>
+            <div class="peds-stat-value" id="peds-weight">— kg</div>
+            <div class="peds-stat-sub" id="peds-weight-lbs">— lbs</div>
+          </div>
+          <div class="peds-stat">
+            <div class="peds-stat-label">ETT</div>
+            <div class="peds-stat-value" id="peds-ett">—</div>
+            <div class="peds-stat-sub" id="peds-length">—</div>
+          </div>
+          <div class="peds-stat">
+            <div class="peds-stat-label">iGel</div>
+            <div class="peds-stat-value" id="peds-igel">—</div>
+            <div class="peds-stat-sub">Size</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dose-grid-wrap">
+        <div class="dose-grid-title">
+          <span>Induction</span><span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head peds-induction">
+              <div class="dose-drug-name">Ketamine</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-ket">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-ket">— mg</div>
+            </div>
+            <div class="dose-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head peds-induction">
+              <div class="dose-drug-name">Etomidate</div>
+              <div class="dose-drug-class">If no Ket</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-eto">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-eto">— mg</div>
+            </div>
+            <div class="dose-card-foot">0.3 mg/kg · 2 mg/mL</div>
+          </div>
+        </div>
+
+        <div class="peds-single-card">
+          <div class="dose-card">
+            <div class="dose-card-head peds-induction">
+              <div class="dose-drug-name">Midazolam</div>
+              <div class="dose-drug-class">Alt</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-midaz">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-midaz" style="margin-top:0;">— mg</div>
+            </div>
+            <div class="dose-card-foot">0.1 mg/kg · 1 mg/mL</div>
+          </div>
+        </div>
+
+        <div class="dose-grid-title" style="margin-top:14px;">
+          <span>Paralytic</span><span class="dose-grid-title-right">Choose ONE</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head peds-paralytic">
+              <div class="dose-drug-name">Rocuronium</div>
+              <div class="dose-drug-class">Preferred</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-roc">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-roc">— mg</div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 10 mg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head peds-paralytic">
+              <div class="dose-drug-name">Succinylcholine</div>
+              <div class="dose-drug-class">Neuro exam</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-sux">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-sux">— mg</div>
+            </div>
+            <div class="dose-card-foot">1.5 mg/kg · 20 mg/mL</div>
+          </div>
+        </div>
+
+        <div class="dose-grid-title" style="margin-top:14px;">
+          <span>Post-Intubation</span>
+        </div>
+        <div class="dose-grid">
+          <div class="dose-card">
+            <div class="dose-card-head peds-post">
+              <div class="dose-drug-name">Fentanyl</div>
+              <div class="dose-drug-class">Analgesia</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-fen">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-fen">— mcg</div>
+            </div>
+            <div class="dose-card-foot">1 mcg/kg · 50 mcg/mL</div>
+          </div>
+          <div class="dose-card">
+            <div class="dose-card-head peds-post">
+              <div class="dose-drug-name">Ketamine</div>
+              <div class="dose-drug-class">Sedation</div>
+            </div>
+            <div class="dose-card-body">
+              <div class="dose-ml-big peds-color" id="p-ml-ketpost">—</div>
+              <div class="dose-ml-unit">mL</div>
+              <div class="dose-mg-line" id="p-mg-ketpost">— mg</div>
+            </div>
+            <div class="dose-card-foot">1 mg/kg · 50 mg/mL</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <strong>Peds rescue:</strong> needle jet if &lt;12 yr<br>
+        <strong>Sux CI:</strong> hyperK+ · renal failure · neuromuscular hx · burns/crush &gt;48h · rhabdo<br>
+        Verify weight with length tape if available
+      </div>
+    </div>
+
+    <div class="cric-banner" style="margin-top:16px;">
+      <div class="cric-banner-title">⚠ Peds Failure</div>
+      <div class="cric-banner-text">Can't ox/vent → <strong>Needle jet</strong> (&lt;12 yr)</div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+<!-- ============ POST-INTUBATION ============ -->
+<div id="view-post" class="view">
+  <div class="view-header post-header">
+    <button class="back-btn" onclick="backFromPost()">‹</button>
+    <div class="view-header-text">
+      <div class="view-header-title">Post-Intubation</div>
+    </div>
+  </div>
+  <div class="view-body">
+
+    <div class="weight-section">
+      <div class="weight-label">Patient Weight</div>
+      <div class="weight-toggle-row">
+        <button class="weight-unit-btn active" id="post-unit-lbs" onclick="setPostUnit('lbs')">LBS</button>
+        <button class="weight-unit-btn" id="post-unit-kg" onclick="setPostUnit('kg')">KG</button>
+      </div>
+      <div class="weight-input-row">
+        <input type="number" class="weight-input" id="post-weight-input" placeholder="—" inputmode="numeric" oninput="calcPostDoses()">
+        <div class="weight-unit-display" id="post-unit-display">lbs</div>
+      </div>
+      <div class="weight-presets" id="post-preset-row">
+        <button class="preset-btn" onclick="setPostPreset(110)">110</button>
+        <button class="preset-btn" onclick="setPostPreset(154)">154</button>
+        <button class="preset-btn" onclick="setPostPreset(176)">176</button>
+        <button class="preset-btn" onclick="setPostPreset(220)">220</button>
+        <button class="preset-btn" onclick="setPostPreset(242)">242</button>
+        <button class="preset-btn" onclick="setPostPreset(275)">275</button>
+        <button class="preset-btn" onclick="setPostPreset(308)">308</button>
+        <button class="preset-btn" onclick="setPostPreset(330)">330</button>
+      </div>
+    </div>
+
+    <div id="post-no-weight" class="no-weight-msg">Enter weight to display doses</div>
+
+    <div id="post-doses" style="display:none;">
+      <div class="post-drug-card">
+        <div class="post-drug-head">
+          <div class="post-drug-name">Fentanyl</div>
+          <div class="post-drug-role">Analgesia</div>
+        </div>
+        <div class="post-drug-body">
+          <div class="post-ml-huge" id="post-fen-ml">—</div>
+          <div class="post-ml-unit-big">mL</div>
+          <div class="post-mg-line">
+            <span id="post-fen-mcg">— mcg</span>
+            <span id="post-fen-max" style="display:none;" class="post-max-tag">MAX 100 mcg</span>
+          </div>
+        </div>
+        <div class="post-drug-foot">
+          1 mcg/kg · 50 mcg/mL · <strong>q5–10 min PRN × 1 hr</strong>
+        </div>
+      </div>
+
+      <div class="post-drug-card">
+        <div class="post-drug-head ket-head">
+          <div class="post-drug-name">Ketamine</div>
+          <div class="post-drug-role">Sedation</div>
+        </div>
+        <div class="post-drug-body">
+          <div class="post-ml-huge ket-color" id="post-ket-ml">—</div>
+          <div class="post-ml-unit-big">mL</div>
+          <div class="post-mg-line">
+            <span id="post-ket-mg">— mg</span>
+            <span id="post-ket-max" style="display:none;" class="post-max-tag">MAX 200 mg</span>
+          </div>
+        </div>
+        <div class="post-drug-foot">
+          1 mg/kg slow push · 50 mg/mL · <strong>q15 min PRN</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Midazolam (fixed adult dose + weight-based bolus alt) -->
+    <div class="post-drug-card">
+      <div class="post-drug-head midaz-head">
+        <div class="post-drug-name">Midazolam</div>
+        <div class="post-drug-role">Alt Sedation</div>
+      </div>
+      <div class="post-drug-body">
+        <div class="post-ml-huge midaz-color">5</div>
+        <div class="post-ml-unit-big">mg</div>
+        <div class="post-mg-line" id="post-midaz-bolus" style="font-size: 14px; color: var(--text-muted);">
+          Weight-based bolus alt: <span id="post-midaz-wt">— mg</span>
+        </div>
+      </div>
+      <div class="midaz-conc-note">
+        <strong>⚠ VERIFY CONCENTRATION:</strong> 5 mg @ 1 mg/mL = <strong>5 mL</strong> · 5 mg @ 5 mg/mL = <strong>1 mL</strong>
+      </div>
+      <div class="post-drug-foot">
+        <strong>5 mg IV/IO q15 min × 4, then PRN</strong><br>
+        Alt: 0.05 mg/kg bolus → 0.1 mg/kg/hr pump
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <strong>RASS target −2 to −3</strong> · pain → −4<br>
+      <strong>Vent</strong> 10–12 BPM · SpO₂ 94–98 · EtCO₂ 35–45<br>
+      <strong>Head injury:</strong> SBP ≥110 · EtCO₂ 35
+    </div>
+
+    <div class="accordion" id="acc-rass" style="margin-top:16px;">
+      <div class="acc-header" onclick="toggleAcc('acc-rass')">
+        <div class="acc-title"><span class="acc-icon-emoji">📊</span> RASS Scale</div>
+        <div class="acc-chevron">⌄</div>
+      </div>
+      <div class="acc-content">
+        <div class="acc-inner">
+          <div class="rass-wrap">
+            <table class="rass-table">
+              <tr><th>Score</th><th>Label</th><th>Description</th></tr>
+              <tr><td class="rass-score rass-pos">+4</td><td>Combative</td><td>Violent, danger to staff</td></tr>
+              <tr><td class="rass-score rass-pos">+3</td><td>Very agitated</td><td>Pulls tubes; aggressive</td></tr>
+              <tr><td class="rass-score rass-pos">+2</td><td>Agitated</td><td>Non-purposeful; fights vent</td></tr>
+              <tr><td class="rass-score rass-pos">+1</td><td>Restless</td><td>Anxious, not aggressive</td></tr>
+              <tr><td class="rass-score rass-zero">0</td><td>Alert</td><td>Attentive</td></tr>
+              <tr><td class="rass-score rass-neg">−1</td><td>Drowsy</td><td>Sustained wake to voice &gt;10s</td></tr>
+              <tr class="rass-target"><td class="rass-score rass-neg">−2</td><td>Light sed.</td><td>Brief wake to voice &lt;10s</td></tr>
+              <tr class="rass-target"><td class="rass-score rass-neg">−3</td><td>Mod. sed.</td><td>Eye open to voice</td></tr>
+              <tr><td class="rass-score rass-neg">−4</td><td>Deep sed.</td><td>Response to physical only</td></tr>
+              <tr><td class="rass-score rass-neg">−5</td><td>Unarousable</td><td>No response</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </div>
+</div>
+
+
+<script>
+  // ===== PEDS DATA =====
+  const pedsData = [
+    { age: 'TERM',   kg: 3,  ett: '2.5mm',     igel: '1',   length: '16-20"' },
+    { age: '3 MOS',  kg: 5,  ett: '3.0mm',     igel: '1',   length: '20-23"' },
+    { age: '6 MOS',  kg: 7,  ett: '3.0mm',     igel: '1.5', length: '23-26"' },
+    { age: '1 YR',   kg: 9,  ett: '3.0-3.5mm', igel: '1.5', length: '26-30"' },
+    { age: '18 MOS', kg: 11, ett: '3.0-3.5mm', igel: '1.5', length: '30-33"' },
+    { age: '2 YR',   kg: 13, ett: '3.5-4.0mm', igel: '2',   length: '33-36"' },
+    { age: '3 YR',   kg: 16, ett: '3.5-4.0mm', igel: '2',   length: '36-39"' },
+    { age: '4 YR',   kg: 18, ett: '3.5-4.0mm', igel: '2',   length: '39-41"' },
+    { age: '5 YR',   kg: 20, ett: '4.0-4.5mm', igel: '2',   length: '41-44"' },
+    { age: '6 YR',   kg: 22, ett: '4.5-5.0mm', igel: '2',   length: '44-47"' },
+    { age: '7 YR',   kg: 24, ett: '4.5-5.0mm', igel: '2',   length: '47-48"' },
+    { age: '8 YR',   kg: 26, ett: '5.0-5.5mm', igel: '2.5', length: '48-49"' },
+    { age: '9 YR',   kg: 28, ett: '5.0-5.5mm', igel: '2.5', length: '49-50"' },
+    { age: '10 YR',  kg: 30, ett: '5.0-5.5mm', igel: '2.5', length: '50-52"' },
+    { age: '11 YR',  kg: 34, ett: '5.5-6.0mm', igel: '2.5', length: '52-54"' },
+    { age: '12 YR',  kg: 36, ett: '6.0-6.5mm', igel: '3',   length: '54-58"' },
+  ];
+
+  const presetsLbs = [110, 154, 176, 220, 242, 275, 308, 330];
+  const presetsKg  = [50,  70,  80,  100, 110, 125, 140, 150];
+
+  // ===== NAVIGATION =====
+  let postBackTarget = 'splash';
+
+  function showView(id) {
+    document.getElementById('splash').style.display = 'none';
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showSplash() {
+    document.getElementById('splash').style.display = 'flex';
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    resetTimer();
+  }
+
+  function goToPost(fromView) {
+    postBackTarget = fromView;
+    let val = null, unit = null;
+    if (fromView === 'crash' && currentKg) {
+      val = document.getElementById('weight-input').value;
+      unit = weightUnit;
+    } else if (fromView === 'dsi' && dsiCurrentKg) {
+      val = document.getElementById('dsi-weight-input').value;
+      unit = dsiWeightUnit;
+    }
+    if (val) {
+      document.getElementById('post-weight-input').value = val;
+      postWeightUnit = unit;
+      document.getElementById('post-unit-lbs').classList.toggle('active', unit === 'lbs');
+      document.getElementById('post-unit-kg').classList.toggle('active', unit === 'kg');
+      document.getElementById('post-unit-display').textContent = unit;
+      updatePostPresetLabels();
+      calcPostDoses();
+    }
+    showView('post');
+  }
+
+  function backFromPost() {
+    if (postBackTarget === 'splash') showSplash();
+    else showView(postBackTarget);
+  }
+
+  // ===== CHECKLIST + ACCORDION =====
+  function toggleCheck(el) { el.classList.toggle('checked'); }
+  function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+
+  // ===== DSI TIMER =====
+  let dsiInterval = null;
+  let dsiSeconds = 180;
+  let dsiRunning = false;
+
+  function updateTimerDisplay(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    document.getElementById('dsi-timer').textContent =
+      mins + ':' + (secs < 10 ? '0' : '') + secs;
+  }
+
+  function startTimer() {
+    if (dsiRunning) return;
+    dsiRunning = true;
+    const display = document.getElementById('dsi-timer');
+    const status = document.getElementById('dsi-timer-status');
+    const btn = document.getElementById('dsi-start-btn');
+    btn.textContent = 'RUNNING';
+    btn.style.opacity = '0.5';
+    display.classList.add('running');
+    status.textContent = 'HOLD BOTH TARGETS';
+    status.className = 'timer-status show-wait';
+
+    dsiInterval = setInterval(() => {
+      dsiSeconds--;
+      updateTimerDisplay(dsiSeconds);
+      if (dsiSeconds <= 0) {
+        clearInterval(dsiInterval);
+        dsiRunning = false;
+        display.classList.remove('running');
+        display.classList.add('goals-met');
+        display.textContent = '0:00';
+        status.textContent = '✓ 3 MIN MET — PROCEED';
+        status.className = 'timer-status show-go';
+        btn.textContent = 'DONE';
+        btn.style.background = '#1a7a1a';
+      }
+    }, 1000);
+  }
+
+  function resetTimer() {
+    if (dsiInterval) clearInterval(dsiInterval);
+    dsiRunning = false;
+    dsiSeconds = 180;
+    updateTimerDisplay(180);
+    const display = document.getElementById('dsi-timer');
+    const status = document.getElementById('dsi-timer-status');
+    const btn = document.getElementById('dsi-start-btn');
+    display.className = 'timer-display';
+    status.textContent = '\u200B';
+    status.className = 'timer-status';
+    btn.textContent = 'START';
+    btn.style.opacity = '1';
+    btn.style.background = 'var(--g-accent)';
+  }
+
+  function round1(n) { return Math.round(n * 10) / 10; }
+
+  // ===== CRASH (ADULT) =====
+  let weightUnit = 'lbs';
+  let currentKg = null;
+
+  function setUnit(unit) {
+    weightUnit = unit;
+    document.getElementById('unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('unit-display').textContent = unit;
+    const btns = document.querySelectorAll('#preset-row .preset-btn');
+    const vals = unit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setPreset(vals[i]); });
+    document.getElementById('weight-input').value = '';
+    currentKg = null;
+    calcDoses();
+  }
+
+  function setPreset(val) {
+    document.getElementById('weight-input').value = val;
+    document.querySelectorAll('#preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcDoses();
+  }
+
+  function calcDoses() {
+    const raw = parseFloat(document.getElementById('weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('no-weight-msg').style.display = 'block';
+      document.getElementById('dose-content').style.display = 'none';
+      currentKg = null;
+      return;
+    }
+    currentKg = weightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('no-weight-msg').style.display = 'none';
+    document.getElementById('dose-content').style.display = 'block';
+    setDose('eto', currentKg * 0.3, 60, 2);
+    setDose('ket', currentKg * 1,   200, 50);
+    setDose('sux', currentKg * 1.5, 300, 20);
+    setDose('roc', currentKg * 1.5, 300, 10);
+  }
+
+  function setDose(id, rawMg, max, conc) {
+    const capped = Math.min(round1(rawMg), max);
+    const maxed = round1(rawMg) >= max;
+    const ml = round1(capped / conc);
+    document.getElementById('ml-' + id).textContent = ml;
+    document.getElementById('mg-' + id).textContent = capped + ' mg';
+    document.getElementById('max-' + id).style.display = maxed ? 'block' : 'none';
+  }
+
+  // ===== DSI WEIGHT + DOSES =====
+  let dsiWeightUnit = 'lbs';
+  let dsiCurrentKg = null;
+
+  function setDsiUnit(unit) {
+    dsiWeightUnit = unit;
+    document.getElementById('dsi-unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('dsi-unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('dsi-unit-display').textContent = unit;
+    const btns = document.querySelectorAll('#dsi-preset-row .preset-btn');
+    const vals = unit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setDsiPreset(vals[i]); });
+    document.getElementById('dsi-weight-input').value = '';
+    dsiCurrentKg = null;
+    calcDsiDoses();
+  }
+
+  function setDsiPreset(val) {
+    document.getElementById('dsi-weight-input').value = val;
+    document.querySelectorAll('#dsi-preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcDsiDoses();
+  }
+
+  function calcDsiDoses() {
+    const raw = parseFloat(document.getElementById('dsi-weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('dsi-no-weight').style.display = 'block';
+      document.getElementById('dsi-doses').style.display = 'none';
+      dsiCurrentKg = null;
+      return;
+    }
+    dsiCurrentKg = dsiWeightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('dsi-no-weight').style.display = 'none';
+    document.getElementById('dsi-doses').style.display = 'block';
+    setDsiDose('ket', dsiCurrentKg * 1,   200, 50);
+    setDsiDose('eto', dsiCurrentKg * 0.3, 60, 2);
+    setDsiDose('roc', dsiCurrentKg * 1.5, 300, 10);
+    setDsiDose('sux', dsiCurrentKg * 1.5, 300, 20);
+  }
+
+  function setDsiDose(id, rawMg, max, conc) {
+    const capped = Math.min(round1(rawMg), max);
+    const maxed = round1(rawMg) >= max;
+    const ml = round1(capped / conc);
+    document.getElementById('dsi-ml-' + id).textContent = ml;
+    document.getElementById('dsi-mg-' + id).textContent = capped + ' mg';
+    document.getElementById('dsi-max-' + id).style.display = maxed ? 'block' : 'none';
+  }
+
+  // ===== POST-INTUBATION =====
+  let postWeightUnit = 'lbs';
+
+  function updatePostPresetLabels() {
+    const btns = document.querySelectorAll('#post-preset-row .preset-btn');
+    const vals = postWeightUnit === 'lbs' ? presetsLbs : presetsKg;
+    btns.forEach((b, i) => { b.textContent = vals[i]; b.onclick = () => setPostPreset(vals[i]); });
+  }
+
+  function setPostUnit(unit) {
+    postWeightUnit = unit;
+    document.getElementById('post-unit-lbs').classList.toggle('active', unit === 'lbs');
+    document.getElementById('post-unit-kg').classList.toggle('active', unit === 'kg');
+    document.getElementById('post-unit-display').textContent = unit;
+    updatePostPresetLabels();
+    document.getElementById('post-weight-input').value = '';
+    calcPostDoses();
+  }
+
+  function setPostPreset(val) {
+    document.getElementById('post-weight-input').value = val;
+    document.querySelectorAll('#post-preset-row .preset-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.textContent) === val);
+    });
+    calcPostDoses();
+  }
+
+  function calcPostDoses() {
+    const raw = parseFloat(document.getElementById('post-weight-input').value);
+    if (!raw || raw <= 0) {
+      document.getElementById('post-no-weight').style.display = 'block';
+      document.getElementById('post-doses').style.display = 'none';
+      document.getElementById('post-midaz-wt').textContent = '— mg';
+      return;
+    }
+    const kg = postWeightUnit === 'lbs' ? raw / 2.2046 : raw;
+    document.getElementById('post-no-weight').style.display = 'none';
+    document.getElementById('post-doses').style.display = 'block';
+
+    const fenRaw = round1(kg * 1);
+    const fenCap = Math.min(fenRaw, 100);
+    document.getElementById('post-fen-ml').textContent = round1(fenCap / 50);
+    document.getElementById('post-fen-mcg').textContent = fenCap + ' mcg';
+    document.getElementById('post-fen-max').style.display = fenRaw >= 100 ? 'inline-block' : 'none';
+
+    const ketRaw = round1(kg * 1);
+    const ketCap = Math.min(ketRaw, 200);
+    document.getElementById('post-ket-ml').textContent = round1(ketCap / 50);
+    document.getElementById('post-ket-mg').textContent = ketCap + ' mg';
+    document.getElementById('post-ket-max').style.display = ketRaw >= 200 ? 'inline-block' : 'none';
+
+    document.getElementById('post-midaz-wt').textContent = round1(kg * 0.05) + ' mg';
+  }
+
+  // ===== PEDS =====
+  let selectedPedsIndex = null;
+
+  function renderPedsAgeGrid() {
+    const grid = document.getElementById('peds-age-grid');
+    grid.innerHTML = '';
+    pedsData.forEach((p, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'peds-age-btn';
+      btn.textContent = p.age;
+      btn.onclick = () => selectPedsAge(i);
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectPedsAge(i) {
+    selectedPedsIndex = i;
+    document.querySelectorAll('.peds-age-btn').forEach((b, idx) => {
+      b.classList.toggle('selected', idx === i);
+    });
+    const p = pedsData[i];
+    document.getElementById('peds-no-selection').style.display = 'none';
+    document.getElementById('peds-results').style.display = 'block';
+    document.getElementById('peds-age-display').textContent = p.age;
+    document.getElementById('peds-weight').textContent = p.kg + ' kg';
+    document.getElementById('peds-weight-lbs').textContent = Math.round(p.kg * 2.2046) + ' lbs';
+    document.getElementById('peds-ett').textContent = p.ett;
+    document.getElementById('peds-length').textContent = p.length;
+    document.getElementById('peds-igel').textContent = p.igel;
+
+    const kg = p.kg;
+    setPedsDose('p-ml-ket',     'p-mg-ket',     kg * 1,   50, 'mg');
+    setPedsDose('p-ml-eto',     'p-mg-eto',     kg * 0.3, 2,  'mg');
+    setPedsDose('p-ml-midaz',   'p-mg-midaz',   kg * 0.1, 1,  'mg');
+    setPedsDose('p-ml-roc',     'p-mg-roc',     kg * 1.5, 10, 'mg');
+    setPedsDose('p-ml-sux',     'p-mg-sux',     kg * 1.5, 20, 'mg');
+    setPedsDose('p-ml-fen',     'p-mg-fen',     kg * 1,   50, 'mcg');
+    setPedsDose('p-ml-ketpost', 'p-mg-ketpost', kg * 1,   50, 'mg');
+
+    setTimeout(() => {
+      document.querySelector('.peds-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  function setPedsDose(mlId, mgId, rawDose, conc, unit) {
+    const dose = round1(rawDose);
+    document.getElementById(mlId).textContent = round1(dose / conc);
+    document.getElementById(mgId).textContent = dose + ' ' + unit;
+  }
+
+  renderPedsAgeGrid();
+
+</script>
+</body>
+</html>
