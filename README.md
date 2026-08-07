@@ -1,4 +1,4 @@
-# NCEMS Intubation Guide
+# NCEMS Intubation Guide 2
 
 Field airway management reference for North Country EMS / Clark Fire District 13 paramedics. Single-file web app — no build step, no dependencies, hosted on GitHub Pages.
 
