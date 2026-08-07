@@ -6,9 +6,9 @@ Field airway management reference for North Country EMS / Clark Fire District 13
 
 ## Links
 
-- **Live app:** <https://ncemsderek.github.io/Intubation/>
-- **Repo:** <https://github.com/ncemsderek/Intubation>
-- **Upload new version:** <https://github.com/ncemsderek/Intubation/upload/main>
+- **Live app:** <https://emaildougb.github.io/Intubation/>
+- **Repo:** <https://github.com/emaildougb/Intubation>
+- **Upload new version:** <https://github.com/emaildougb/Intubation/upload/main>
 
 ## Files in this repo
 
