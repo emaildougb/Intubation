@@ -2,7 +2,7 @@
 
 Field airway management reference for North Country EMS / Clark Fire District 13 paramedics. Single-file web app — no build step, no dependencies, hosted on GitHub Pages.
 
-**Current version: v2.4**
+**Current version: v2.5**
 
 ## Links
 
@@ -57,6 +57,11 @@ When someone adds the live link to their home screen, it now shows the NCEMS air
 Tap anywhere on the splash background 5 times quickly -> a Bigfoot strides across the bottom for 3 seconds.
 
 ## Changelog
+
+### v2.5 (10/24/2026)
+- New top bar, the same as CG Staff: white bar, house button on the left goes to NCEMS Clinical, NCEMS logo, "NCEMS" in black and the app name in green, North Country EMS in gray, and the i button on the right for details. iPhone status bar set to default so the clock shows on the white bar. The i opens the Concentrations page
+- Added logo.png
+- Changed index.html, logo.png and README.md
 
 ### v2.4
 
