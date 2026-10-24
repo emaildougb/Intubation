@@ -2,7 +2,7 @@
 
 ## What it does
 
-Field airway management reference for NCEMS/Clark Fire District 13 paramedics — a single-file web app, no backend, built on the 2026 Clark County EMS Patient Care Protocols. Currently v2.3. Sections:
+Field airway management reference for NCEMS/Clark Fire District 13 paramedics — a single-file web app, no backend, built on the 2026 Clark County EMS Patient Care Protocols. Currently v2.4 (2.4 added haptics on taps, 10/24/2026). Sections:
 
 - **DSI** — weight-based dosing, Target Vital Signs gate, 3-minute timer, LEMON/Mallampati checklists, equipment list, DOPE troubleshooting mnemonic
 - **Adult Crash Airway** — weight dosing, failure path, DOPE

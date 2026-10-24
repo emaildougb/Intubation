@@ -2,7 +2,7 @@
 
 Field airway management reference for North Country EMS / Clark Fire District 13 paramedics. Single-file web app — no build step, no dependencies, hosted on GitHub Pages.
 
-**Current version: v2.3**
+**Current version: v2.4**
 
 ## Links
 
@@ -57,6 +57,10 @@ When someone adds the live link to their home screen, it now shows the NCEMS air
 Tap anywhere on the splash background 5 times quickly -> a Bigfoot strides across the bottom for 3 seconds.
 
 ## Changelog
+
+### v2.4
+
+- Haptics: a light tick when you tap a button, link, tab or card, the same way the EP Checker does it. iPhone needs iOS 18 or newer with System Haptics on (Settings, Sounds & Haptics). Android phones vibrate. Nothing else changed
 
 ### v2.3
 
